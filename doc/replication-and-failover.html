@@ -1,0 +1,100 @@
+<gigo-include-in file="includes/doc-template.html" />
+
+        <div class="contentsBox">
+            <div class="contentsBoxHeader">Replication and failover explained</div>
+            <div class="contentsBoxBody">
+                <article>
+                    <p>Kubegres</b> operator's replication process uses
+                        <a target="_blank" href="https://wiki.postgresql.org/wiki/Streaming_Replication">Streaming Replication</a>
+                        between the Primary and Replica PostgreSql pods. This is the default replication mode of PostgreSql.
+                    </p>
+
+                    <p>To explain how replication and fail-over work, we are going to take a use-case with:
+                        <ul>
+                            <li>a Kubernetes cluster of 4 nodes</li>
+                            <li>a Kubegres resource is deployed with a PostgreSql cluster of 3 pods</li>
+                        </ul>
+                    </p>
+
+                    <p>For this use case, we will assume that the YAML in the page <a href="/doc/getting-started.html">Getting
+                        started</a> was used when deploying Kubegres resource.</p>
+
+                    <h1>Deployment, Replication and Services</h1>
+
+                    <p>
+                        The first time a Kubegres resource is created with the command "kubectl", the Kubegres operator
+                        deploys each PostgreSql pod in a specific and distinct node. If later a pod is redeployed, it will
+                        be located in the same node where it was initially deployed. In this sense it behaves like a standard
+                        <a target="_blank" href="https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/">
+                            StatefulSet</a> resource. This also means a node cannot have more than one PostgreSql pod
+                        deployed with the same Kubegres YAML.
+                    </p>
+
+                    <p>Since we have a cluster of 3 PostgreSql servers, Kubegres operator deploys a Primary PostgreSql pod first
+                        and on success, it deploys 2 Replica PostgreSql pods, as follows:</p>
+
+                    <p style="text-align: center"><img src="/includes/img/3Replicas_and_4_nodes.svg" /> </p>
+
+                    <p>The Primary PostgreSql pod can be accessed for read and write SQL requests, when the Replica PostgreSql pods can only be accessed for read SQL requests. On data change, Primary replicates the changes to the Replica pods using real-time data streaming.</p>
+                    <p>Kubegres creates 2 Kubernetes services allowing client applications to access to either Primary or Replica pods, as follows:
+                        <ul>
+                            <li>a primary service for read/write requests to the Primary PostgreSql pod (e.g. with name "mypostgres")</li>
+                            <li>a replica service for read requests to the Replica PostgreSql pods (e.g. with name  "mypostgres-replica")</li>
+                        </ul>
+                    As follows:</p>
+
+                    <p style="text-align: center"><img src="/includes/img/2Services.svg" /></p>
+
+                    <h1>Failover</h1>
+
+                    <p>Kubegres operator is constantly monitoring whether the Primary PostgreSql requires a fail-over. For that it relies on:
+                        <ul>
+                            <li>PostgreSql container's health: it regularly runs the executable
+                                <a target="_blank" href="https://www.postgresql.org/docs/9.3/app-pg-isready.html">pg_isready</a>
+                                provided by PostgreSql.</li>
+                            <li>the availability of nodes: it relies on Kubernetes to notify it when a node is down</li>
+                        </ul>
+                    </p>
+
+                    <p>Based on the above, when it is confirmed that Primary PostgreSql is unavailable, Kubegres starts the
+                        failover process in 2 steps:
+                        <ul>
+                            <li>Kubegres checks if there is a Replica PostgreSql pod available. In this example, we have 2 pods
+                                available on nodes 2 and 3. Kubegres would promote the Replica PostgreSql pod on node 2 as a Primary pod.
+                                This process relies on the standard PostgreSql promotion process which is triggered by creating a log file.</li>
+                            <li>Once the promotion is completed, Kubegres deploys a new Replica PostgreSql pod. Kubernetes will
+                                automatically locate it on the next available node, in our case it would be node 4.
+                                It will never deploy more than 1 PostgreSql pod in the same node.</li>
+                        </ul>
+                    </p>
+
+                    <p>Please see below the state of the PostgreSql cluster after node 1 was reported as unavailable triggering
+                        a failover of Primary on node 1 to a Replica on node 2:</p>
+                    <p style="text-align: center"><img src="/includes/img/failover_3_Replicas_on_4_nodes.svg" /></p>
+
+                    <h1>How to mitigate failover for client applications</h1>
+
+                    <p>A failover can take few seconds depending on how reactive is Kubernetes in notifying Kubegres about
+                        an issue. To make this process as transparent as possible, client applications connecting to PostgreSql
+                        must follow the following approaches:
+                        <ul>
+                            <li>Connect to Primary PostgreSql via Kubernetes service (Service "mypostgres" in diagram below).
+                                When a failover happens, the Kubernetes service for Primary will automatically reconnect to the
+                                newly promoted Primary PostgreSql. This is transparent for client applications using it.</li>
+                            <li>When a new Primary is in the process of being promoted during a failover, some read/write
+                                requests for Primary PostgreSql could be rejected. To mitigate this, client apps are encouraged
+                            to have a retry logic on failure so that these requests can be successful when a new Primary
+                                PostgreSql is promoted.</li>
+                            <li>For read only requests, client apps could connect to the Replica service (Service "mypostgres-replica"
+                                in diagram below). This allows client apps to not be affected for read requests when a new
+                                Primary is in the process of being promoted during a failover.</li>
+                        </ul>
+                        </p>
+
+                    <p style="text-align: center"><img src="/includes/img/2Services.svg" /></p>
+
+                    <div class="publicationDetails"><time datetime="2021-04-10" pubdate="pubdate">10 April 2021</time></div>
+
+                </article>
+            </div>
+        </div>

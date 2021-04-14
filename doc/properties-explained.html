@@ -1,0 +1,144 @@
+<gigo-include-in file="includes/doc-template.html" />
+
+        <div class="contentsBox">
+            <div class="contentsBoxHeader">All properties explained</div>
+            <div class="contentsBoxBody">
+                <article>
+                    <p> Please see below a Kubegres resource YAML containing all available properties, followed by a table explaining the meaning of each property:
+                        <pre>
+apiVersion: io.reactive-tech/v1
+kind: Kubegres
+metadata:
+name: mypostgres
+namespace: default
+
+spec:
+
+   replicas: 3
+   image: postgres:13.2
+   port: 5432
+
+   database:
+      size: 200Mi
+      storageClassName: standard
+      volumeMount: /var/lib/postgresql/data
+
+   customConfig: mypostgres-conf
+
+   backup:
+      schedule: "* */1 * * *"
+      pvcName: my-backup-pvc
+      volumeMount: /var/lib/backup
+
+   env:
+      - name: POSTGRES_PASSWORD
+        valueFrom:
+           secretKeyRef:
+              name: mySecretResource
+              key: superUserPassword
+
+      - name: POSTGRES_REPLICATION_PASSWORD
+        valueFrom:
+           secretKeyRef:
+              name: mySecretResource
+              key: replicationUserPassword
+
+                        </pre>
+                    </p>
+
+                    <p>
+                        <table>
+                            <tr>
+                                <th>Property</th>
+                                <th>Default value</th>
+                                <th>Meaning</th>
+                            </tr>
+                            <tr>
+                                <td>name</td>
+                                <td>&nbsp;</td>
+                                <td>
+                                    <b>Required.</b> <br/> The unique name of a Kubegres resource in Kubernetes.
+                                    It defines the unique name of a PostgreSql cluster, which is "mypostgres" for this example.
+                                    <br/>Kubegres operator allows creating as many clusters as a given infrastructure can handle
+                                    as long as each cluster's name is unique.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;replicas</td>
+                                <td>&nbsp;</td>
+                                <td><b>Required.</b> <br/> It defines a cluster of 3 Postgres pods, one primary server and 2 replica servers. If we set this value to 1, it will only create a primary server without any replica servers.</td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;image</td>
+                                <td>&nbsp;</td>
+                                <td>
+                                    <b>Required.</b> <br/> It is the official PostgreSql docker image.
+                                    Kubegres works with the official PostgreSql docker image. Consequently, it does not
+                                    ship with a custom Docker image with obscure set of libraries. More details about
+                                    the Postgres docker image in
+                                    <a target="_blank" href="https://hub.docker.com/_/postgres">Docker Hub</a>.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;port</td>
+                                <td>5432</td>
+                                <td>Optional. <br/> The port exposed by PostgreSql docker container allowing to access to PostgreSql server.</td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;database<br/>&nbsp;&nbsp;size</td>
+                                <td>&nbsp;</td>
+                                <td><b>Required.</b> <br/> The max size of all database(s) managed by a PostgreSql server. We use "Mi" for Megabyte and "Gi" for Gigabyte.</td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;database<br/>&nbsp;&nbsp;storageClassName</td>
+                                <td>&nbsp;</td>
+                                <td>
+                                    <b>Required.</b> <br/> It defines the storage class which will be used to store
+                                    PostgreSql database. A volume backed by a Storage-Class is mounted into the path defined
+                                    by "spec.database.volumeMount" (see below). Behind the scenes, Kubernetes creates a
+                                    Persistence-Volume-Claim (PVC) for each pod and associates it to the given Storage-Class name.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;database<br/>&nbsp;&nbsp;volumeMount</td>
+                                <td>/var/lib/postgresql/data</td>
+                                <td>Optional. <br/> It defines the storage class which will be used to store PostgreSql database. A volume backed by a Storage-Class is mounted into the path defined by "spec.database.volumeMount" (see below). Behind the scenes, PostgreSql creates a Persistence-Volume-Claim (PVC) for each pod and associates it to the given Storage-Class name.</td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;customConfig</td>
+                                <td>base-kubepostgres-config</td>
+                                <td>Optional. <br/> It allows setting the name of a ConfigMap which contains the configs files and their contents required by Kubegres. <br/> <a href="/doc/set-config-map.html">More details here</a>.</td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;backup<br/>&nbsp;&nbsp;schedule</td>
+                                <td>&nbsp;</td>
+                                <td>Optional, unless if we want to enable backup. <br/> It schedules a back-up every hour. Its format follows the standard <a target="_blank" href="https://en.wikipedia.org/wiki/Cron">Cron</a> spec. <br/> <a href="/doc/enable-backup.html">More details here</a>.</td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;backup<br/>&nbsp;&nbsp;pvcName</td>
+                                <td>&nbsp;</td>
+                                <td>Optional, unless if we want to enable backup. <br/> The Persistence-Volume-Claim (PVC) defining where the back-up data will be stored. A volume backed by a PVC is mounted into the path defined by "spec.backup.volumeMount" (see below). <br/> <a href="/doc/enable-backup.html">More details here</a>.</td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;backup<br/>&nbsp;&nbsp;volumeMount</td>
+                                <td>&nbsp;</td>
+                                <td>Optional, unless if we want to enable backup. <br/> The location where the backup is stored in the docker image. A volume is mounted on that path using the PVC name defined by "spec.database.pvcName". <br/> <a href="/doc/enable-backup.html">More details here</a>.</td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;env<br/>&nbsp;&nbsp;name</td>
+                                <td>&nbsp;</td>
+                                <td><b>Required.</b> <br/> The password of the super user "postgres". This user is created by the official PostgreSql docker image.</td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;env<br/>&nbsp;&nbsp;name</td>
+                                <td>&nbsp;</td>
+                                <td><b>Required.</b> <br/> The password of the "replication" user which is used by PostgreSql to replicate data between Primary and Replicas servers.</td>
+                            </tr>
+                        </table>
+                    </p>
+
+                    <div class="publicationDetails"><time datetime="2021-04-10" pubdate="pubdate">10 April 2021</time></div>
+
+                </article>
+            </div>
+        </div>

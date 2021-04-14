@@ -1,0 +1,58 @@
+<gigo-include-in file="includes/main-template.html" />
+
+        <div class="contentsBox">
+            <div class="contentsBoxHeader">Kubegres</div>
+            <div class="contentsBoxBody">
+                <article>
+                    <p><b>Kubegres</b> is a Kubernetes operator allowing to deploy a cluster of PostgreSql pods with data
+                        replication enabled out-of-the box. It brings simplicity when using PostgreSql considering how
+                        complex managing stateful-set's life-cycle and data replication could be with Kubernetes.</p>
+                    <p>Kubegres has the following features:
+                        <ul>
+                            <li>
+                                It creates a cluster of PostgreSql servers with data replication enabled: it creates a
+                                Primary PostgreSql pod and a number of Replica PostgreSql pods and replicates primary's
+                                database in real-time to Replica pods.
+                            </li>
+                            <li>
+                                It manages fail-over: if a Primary PostgreSql crashes, it automatically promotes a Replica
+                                PostgreSql as a Primary.
+                            </li>
+                            <li>
+                                It has a data backup option allowing to dump PostgreSql data regularly in a given volume.
+                            </li>
+                            <li>
+                                It provides a very simple YAML with properties specialised for PostgreSql.
+                            </li>
+                            <li>
+                                It is resilient, has over
+                                <a target="_blank" href="https://github.com/reactive-tech/kubegres/tree/main/test"> 55 automatized tests cases</a>
+                                and has been running in production.
+                            </li>
+                            <li>
+                                It works with the official <a target="_blank" href="https://hub.docker.com/_/postgres">
+                                PostgreSql docker image</a>: it does not ship nor require an additional Docker image to work.
+                                Just install the Kubernetes controller once and deploy as many PostgreSql clusters as you need
+                                by simply deploying <a target="_blank" href="https://hub.docker.com/_/postgres">the official
+                                container</a> of the PostgreSql community.
+                            </li>
+                        </ul>
+                    </p>
+                    <p><b>Kubegres</b> was developed by
+                        <a target="_blank" href="https://www.reactive-tech.io/">Reactive Tech Limited</a>
+                        and Alex Arica as the lead developer.
+                    </p>
+                    <p>
+                        It is Open-Source and available on GitHub:
+                        <a href="https://github.com/reactive-tech/kubegres">https://github.com/reactive-tech/kubegres</a>
+                    </p>
+                    <p>
+                        It was developed with the framework
+                        <a target="_blank" href="https://book.kubebuilder.io/">Kubebuilder</a> version 3, an SDK for building
+                        Kubernetes APIs using CRDs. Kubebuilder is maintained by the official Kubernetes API Machinery
+                        Special Interest Group (SIG).
+                    </p>
+                    <p><a href="/doc/getting-started.html">Please click here to get started</a></p>
+                </article>
+            </div>
+        </div>

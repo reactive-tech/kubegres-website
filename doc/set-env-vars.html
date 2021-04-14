@@ -1,0 +1,73 @@
+<gigo-include-in file="includes/doc-template.html" />
+
+        <div class="contentsBox">
+            <div class="contentsBoxHeader">Set environment variables</div>
+            <div class="contentsBoxBody">
+                <article>
+                    <p><b>Kubegres</b> allows setting custom environment variables. These variables can be used inside Kubegres resource configuration. And as they are set to the PostgreSql container, they can be accessed from your custom bash scripts running inside the container.</p>
+                    <p>The available properties under "env:" follow Kubernetes' convention as described in the <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#envvar-v1-core">official doc</a>.</p>
+                    <p>The mandatory environment variables are:
+                    <ul>
+                        <li>"env.name: POSTGRES_PASSWORD" : the password of the super user "postgres".  This user is created by the official PostgreSql docker image.</li>
+                        <li>"env.name: POSTGRES_REPLICATION_PASSWORD" : the password of the "replication" user which is used by PostgreSql to replicate data between Primary and Replicas servers.</li>
+                    </ul>
+                    </p>
+
+                    <p>
+                        You can set your custom environment variables in Kubegres YAML. For example, you can create
+                        an environment variable which contains the password of a custom PostgreSql user. You can then access
+                        to that env-variable in an <a href="/doc/set-config-map.html#primary_init_script">
+                        initialisation script</a> in which you can create a custom PostgreSql user with that password.
+                    </p>
+                    <p>
+                        Please see in the YAML below 2 custom env-variables "$POSTGRES_MY_DB_PASSWORD" and "$MY_OTHER_VAR".
+                        The env-variable $POSTGRES_MY_DB_PASSWORD is used in a PostgreSql
+                        <a href="/doc/set-config-map.html#primary_init_script">initialisation script example</a>.
+                    </p>
+                    <pre>
+apiVersion: io.reactive-tech/v1
+kind: Kubegres
+metadata:
+name: mypostgres
+namespace: default
+
+spec:
+
+   replicas: 3
+   image: postgres:13.2
+   port: 5432
+
+   database:
+      size: 200Mi
+      storageClassName: standard
+      volumeMount: /var/lib/postgresql/data
+
+   env:
+      - name: POSTGRES_PASSWORD
+        valueFrom:
+           secretKeyRef:
+              name: mySecretResource
+              key: superUserPassword
+
+      - name: POSTGRES_REPLICATION_PASSWORD
+        valueFrom:
+           secretKeyRef:
+              name: mySecretResource
+              key: replicationUserPassword
+<b>
+      - name: POSTGRES_MY_DB_PASSWORD
+        valueFrom:
+            secretKeyRef:
+            name: mySecretResource
+            key: myDbUserPassword
+
+      - name: MY_OTHER_VAR
+        value: "any_value"
+</b>
+                    </pre>
+
+                    <div class="publicationDetails"><time datetime="2021-04-10" pubdate="pubdate">10 April 2021</time></div>
+
+                </article>
+            </div>
+        </div>

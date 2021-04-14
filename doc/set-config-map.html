@@ -1,0 +1,209 @@
+<gigo-include-in file="includes/doc-template.html" />
+
+        <div class="contentsBox">
+            <div class="contentsBoxHeader">Set a custom ConfigMap</div>
+            <div class="contentsBoxBody">
+                <article>
+                    <p><b>Kubegres</b> allows to override its default configs and bash scripts based on your requirements.</p>
+                    <p>
+                        You can override the following configurations:
+                        <ul>
+                            <li><b>primary_init_script.sh</b>: a bash script which runs the 1st time a Primary PostgreSql container is created. This happens when a new Kubegres resource is deployed to create a new PostgreSql cluster. It is the right place to add instructions creating custom database(s) and user(s) for your requirement.</li>
+                            <li><b>backup_database.sh</b>: if you enabled backup for your Kubegres resource, this bash script defines the actions to perform during a backup. It is executed regularly by a dedicated CronJob.</li>
+                            <li><a target="_blank" href="https://github.com/postgres/postgres/blob/master/src/backend/utils/misc/postgresql.conf.sample">postgres.conf</a>: the official PostgreSql configs used for both Primary and Replica servers.</li>
+                            <li><a target="_blank" href="https://www.postgresql.org/docs/current/auth-pg-hba-conf.html">pg_hba.conf</a>: the host-based authentication configs for both Primary and Replica servers.</li>
+                        </ul>
+                    </p>
+
+                    <h1>Create a custom ConfigMap</h1>
+                    <p>
+                        If you would like to override the configs of a specific Kubegres resource, you can create a
+                        custom <a target="_blank" href="https://kubernetes.io/docs/concepts/configuration/configmap/">
+                        ConfigMap</a> by setting its name to the property "spec.customConfig" in your Kubegres config,
+                        as follows:
+                    </p>
+                    <pre>
+apiVersion: io.reactive-tech/v1
+kind: Kubegres
+metadata:
+name: mypostgres
+namespace: default
+
+spec:
+
+   replicas: 3
+   image: postgres:13.2
+   port: 5432
+
+   database:
+      size: 200Mi
+      storageClassName: standard
+      volumeMount: /var/lib/postgresql/data
+
+   <b>customConfig: mypostgres-conf</b>
+
+   env:
+      - name: POSTGRES_PASSWORD
+        valueFrom:
+           secretKeyRef:
+              name: mySecretResource
+              key: superUserPassword
+
+      - name: POSTGRES_REPLICATION_PASSWORD
+        valueFrom:
+           secretKeyRef:
+              name: mySecretResource
+              key: replicationUserPassword
+
+                    </pre>
+                    <p>
+                        And in your custom ConfigMap you can override one or many of these configs: primary_init_script.sh,
+                        backup_database.sh, postgres.conf and pg_hba.conf as explained below.
+                    </p>
+
+                    <h2><a id="primary_init_script">Override primary_init_script.sh</a></h2>
+                    <p>The bash script below runs only the 1st time a Primary PostgreSql container is created.
+                        It overrides "primary_init_script.sh" in a custom ConfigMap,
+                        by creating a custom user and a database and grant to that user access rights:</p>
+                    <pre>
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mypostgres-conf
+  namespace: custom
+
+data:
+
+  primary_init_script.sh: |
+    #!/bin/bash
+    set -e
+
+    # This script assumes that the env-var $POSTGRES_MY_DB_PASSWORD contains the password of the custom user to create.
+    # You can add any env-var in your Kubegres resource config YAML.
+
+    dt=$(date '+%d/%m/%Y %H:%M:%S');
+    echo "$dt - Running init script the 1st time Primary PostgreSql container is created...";
+
+    customDatabaseName="my_app_db"
+    customUserName="my_username"
+
+    echo "$dt - Running: psql -v ON_ERROR_STOP=1 --username $POSTGRES_USER --dbname $POSTGRES_DB ...";
+
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+    CREATE DATABASE $customDatabaseName;
+    CREATE USER $customUserName WITH PASSWORD '$POSTGRES_MY_DB_PASSWORD';
+    \connect $customDatabaseName;
+    CREATE TABLE account(user_id serial PRIMARY KEY, username VARCHAR (50) NOT NULL);
+    INSERT INTO account VALUES (1, 'username1');
+    INSERT INTO account VALUES (2, 'username2');
+    GRANT ALL PRIVILEGES ON DATABASE "$customDatabaseName" to $customUserName;
+    GRANT ALL ON "account" to $customUserName;
+    EOSQL
+
+    echo "$dt - Init script is completed";
+                    </pre>
+
+                    <p>
+                        This script above assumes that the env-var $POSTGRES_MY_DB_PASSWORD contains the password of the
+                        custom user to create. Please see an example about <a href="/doc/set-env-vars.html"> how to add
+                        a custom env-variable.</a>
+                    </p>
+
+                    <h2>Override backup_database.sh</h2>
+                    <p>Please see below an example of an overridden "backup_database.sh" in a custom ConfigMap, which contains the logic to dump PostgreSql Primary's database:</p>
+                    <pre>
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mypostgres-conf
+  namespace: custom
+
+data:
+
+  backup_database.sh: |
+    #!/bin/bash
+    set -e
+
+    dt=$(date '+%d/%m/%Y %H:%M:%S');
+    fileDt=$(date '+%d_%m_%Y_%H_%M_%S');
+    backUpFileName="$Kubegres_RESOURCE_NAME-backup-$fileDt.gz"
+    backUpFilePath="$BACKUP_DESTINATION_FOLDER/$backUpFileName"
+
+    echo "$dt - Starting DB backup of Kubegres resource $Kubegres_RESOURCE_NAME into file: $backUpFilePath";
+    echo "$dt - Running: pg_dumpall -h $BACKUP_SOURCE_DB_HOST_NAME -U postgres -c | gzip > $backUpFilePath"
+
+    pg_dumpall -h $BACKUP_SOURCE_DB_HOST_NAME -U postgres -c | gzip > $backUpFilePath
+
+    if [ $? -ne 0 ]; then
+      rm $backUpFilePath
+      echo "Unable to execute a BackUp. Please check DB connection settings"
+      exit 1
+    fi
+
+    echo "$dt - DB backup completed for Kubegres resource $Kubegres_RESOURCE_NAME into file: $backUpFilePath";
+                    </pre>
+
+                    <h2>Override postgres.conf</h2>
+                    <p>When overriding postgres.conf, there are 2 properties to be aware of:
+                    <ul>
+                        <li>"listen_addresses": by default PostgreSql set it to "localhost". But Kubegres explicitly set it to "*". When defining your own postgres.conf, do not forget to set it to "*". Not setting it or using an alternative value could break Kubegres replication capability.</li>
+                        <li>"wal_level": You cannot set a value for this config because it is passed as an argument to the PostgreSql container. This restriction is part of the design.</ul>
+                    </ul>
+                    <p>Please see below an example of an overridden "postgres.conf" in a custom ConfigMap:</p>
+                    <pre>
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mypostgres-conf
+  namespace: custom
+
+data:
+
+  postgres.conf: |
+
+    # Replication configs
+    listen_addresses = '*'
+    max_wal_senders = 10
+    wal_keep_segments = 48 #in Mb
+    max_connections = 100
+    shared_buffers = 128MB
+
+    # Logging
+    log_destination = 'stderr,csvlog'
+    logging_collector = on
+    log_directory = 'pg_log'
+    log_filename= 'postgresql-%Y-%m-%d_%H%M%S.log'
+                    </pre>
+
+                    <h2>Override pg_hba.conf</h2>
+                    <p>Please see below an example of an overridden "pg_hba.conf" in a custom ConfigMap:</p>
+                    <pre>
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mypostgres-conf
+  namespace: custom
+
+data:
+
+  pg_hba.conf: |
+    # TYPE  DATABASE        USER            ADDRESS                 METHOD
+    # Replication connections by a user with the replication privilege
+    host    replication     replication     all                     md5
+    # As long as it is authenticated, all connections allowed except from "0.0.0.0/0"
+    local   all             all                                     md5
+    host    all             all             all                     md5
+    host    all             all             0.0.0.0/0               reject
+                    </pre>
+
+                    <h1>Update the configs common to all running Kubegres resources</h1>
+                    <p>Kubegres operator automatically creates a base ConfigMap named "base-kubegres-config" in each namespace where Kubegres resources are running. </p>
+                    <p>You can override that base ConfigMap using kubectl. Any changes to that config applies to all Kubegres resources in a given namespace. </p>
+                    <p>Please see the contents of that base ConfigMap in <a target="_blank" href="#">Git</a>.</p>
+
+
+                    <div class="publicationDetails"><time datetime="2021-04-10" pubdate="pubdate">10 April 2021</time></div>
+
+                </article>
+            </div>
+        </div>

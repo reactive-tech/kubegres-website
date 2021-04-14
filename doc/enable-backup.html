@@ -1,0 +1,71 @@
+<gigo-include-in file="includes/doc-template.html" />
+
+        <div class="contentsBox">
+            <div class="contentsBoxHeader">Enable back-up</div>
+            <div class="contentsBoxBody">
+                <article>
+                    <p><b>Kubegres</b> allows to back-up the Primary PostgreSql database to a given volume in a scheduled way.</p>
+                    <p>
+                        If back-up is enabled in Kubegres YAML, behind the scenes a Kubernetes <a target="_blank" href="https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/">Cronjob</a> resource is created which regularly executes a backup bash script.
+                        It is possible to override that bash script to have a better control of the backup process, as explained in the doc: <a href="/doc/set-config-map.html">Set configMap</a>.
+                    </p>
+                    <p>To enable the backup option in a Postgres cluster, add the property "backup" to its Kubegres YAML, as in the example below:</p>
+                    <pre>
+backup:
+    schedule: "* */1 * * *"
+    pvcName: my-backup-pvc
+    volumeMount: /var/lib/backup
+                    </pre>
+
+                <p>The above config has the following properties:
+                    <ul>
+                        <li>"backup.schedule: "* */1 * * *" : it schedules a back-up every hour. Its format follows the standard <a target="_blank" href="https://en.wikipedia.org/wiki/Cron">Cron spec</a>.</li>
+                        <li>"backup.pvcName: my-backup-pvc" : the Persistence-Volume-Claim (PVC) defining where the back-up data will be stored. A volume backed by a PVC is mounted into the path defined by "backup.volumeMount" (see below).</li>
+                        <li>"backup.volumeMount: /var/lib/backup" : the location where the backup is stored in the docker image. A volume is mounted on that path using the PVC name defined by "database.pvcName".</li>
+                    </ul>
+                </p>
+
+                    <p>Please see below an example of a full Kubegres YAML config with those back-up properties:</p>
+                    <pre>
+apiVersion: io.reactive-tech/v1
+kind: Kubegres
+metadata:
+name: mypostgres
+namespace: default
+
+spec:
+
+   replicas: 3
+   image: postgres:13.2
+   port: 5432
+
+   database:
+      size: 200Mi
+      storageClassName: standard
+      volumeMount: /var/lib/postgresql/data
+
+   <b>backup:
+       schedule: "* */1 * * *"
+       pvcName: my-backup-pvc
+       volumeMount: /var/lib/backup</b>
+
+   env:
+      - name: POSTGRES_PASSWORD
+        valueFrom:
+           secretKeyRef:
+              name: mySecretResource
+              key: superUserPassword
+
+      - name: POSTGRES_REPLICATION_PASSWORD
+        valueFrom:
+           secretKeyRef:
+              name: mySecretResource
+              key: replicationUserPassword
+
+                    </pre>
+
+                    <div class="publicationDetails"><time datetime="2021-04-10" pubdate="pubdate">10 April 2021</time></div>
+
+                </article>
+            </div>
+        </div>

@@ -1,0 +1,243 @@
+<gigo-include-in file="includes/doc-template.html" />
+
+        <div class="contentsBox">
+            <div class="contentsBoxHeader">Getting started</div>
+            <div class="contentsBoxBody">
+                <article>
+                    <p>
+                        With Kubegres operator, we are going to create a cluster of 3 PostgreSql instances which are replicating
+                        their data in real time.
+                    </p>
+                    <h2>1) Install Kubegres operator</h2>
+
+                    <p>The installation needs to be done once. Run the following command in a Kubernetes cluster:</p>
+                    <pre>
+kubectl apply -f https://raw.githubusercontent.com/reactive-tech/kubegres/v1.0/kubegres.yaml
+                    </pre>
+
+                    <p>During the installation, "Kubegres" creates the namespace "kubegres-system" where it installs its
+                        components. Check their status as follows:</p>
+                    <pre>
+kubectl get all -n kubegres-system
+                    </pre>
+
+                    <p>We should see the controller "kubegres-controller-manager" in a running state:</p>
+                    <pre>
+NAME                                                     STATUS
+pod/<b>kubegres-controller-manager</b>-999786dd6-74tmb          <b>Running</b>
+
+NAME                                                    TYPE
+service/kubegres-controller-manager-metrics-service     ClusterIP
+
+NAME                                                    READY
+deployment.apps/kubegres-controller-manager             1/1
+
+                    </pre>
+
+                    <p>Once it is running, we can check the controller's logs, as follows:</p>
+                    <pre>
+kubectl logs pod/<b>kubegres-controller-manager</b>-999786dd6-74tmb -c manager -n kubegres-system -f
+                    </pre>
+
+                    <h2>2) Create a Secret resource</h2>
+
+                    <p>Before creating a cluster of PostgreSql, we need to create a Secret resource in order to store
+                        the passwords of a PostgreSql's super user and a replication user:</p>
+                    <p>Create a file:</p>
+                    <pre>
+vi my-postgres-secret.yaml
+                    </pre>
+
+                    <p>Add the following contents:</p>
+                    <pre>
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mypostgres-secret
+  namespace: default
+type: Opaque
+stringData:
+  <b>superUserPassword: postgresSuperUserPsw
+  replicationUserPassword: postgresReplicaPsw</b>
+                    </pre>
+
+                    <p>Apply the changes:</p>
+                    <pre>
+kubectl apply -f my-postgres-secret.yaml
+                    </pre>
+
+                    <p>
+                        Note that in your Secret YAML, you can set any name that you would like for the keys "superUserPassword"
+                        and "replicationUserPassword". The password values in the YAML are also for example purpose.
+                    </p>
+
+                    <h2>3) Create a cluster of PostgreSql instances</h2>
+                    <p>To create a cluster of PostgreSql, we need to create a Kubegres resource. The Kubegres YAML below
+                        contains the minimum required configurations to set-up:
+                        <ul>
+                            <li>
+                                a cluster of PostgreSql pods with an official <a target="_blank" href="https://hub.docker.com/_/postgres">
+                                 PostgreSql Docker container</a>  version 13.2
+                            </li>
+                            <li>the property "replica: 3" means, Kubegres will create 1 Primary PostgreSql pod and 2 Replica PostgreSql pods</li>
+                            <li>the data will be replicated in real time from the Primary PostgreSql pod to the 2 Replica PostgreSql pods</li>
+                        </ul>
+                    </p>
+
+                    <p>Create a file:</p>
+                    <pre>
+vi my-postgres.yaml
+                    </pre>
+
+                    <p>Add the following contents:</p>
+                    <pre>
+apiVersion: io.reactive-tech/v1
+kind: Kubegres
+metadata:
+name: mypostgres
+namespace: default
+
+spec:
+
+   replicas: 3
+   image: postgres:13.2
+
+   database:
+      size: 200Mi
+      storageClassName: standard
+
+   env:
+      - name: POSTGRES_PASSWORD
+        valueFrom:
+           secretKeyRef:
+              name: mypostgres-secret
+              key: superUserPassword
+
+      - name: POSTGRES_REPLICATION_PASSWORD
+        valueFrom:
+           secretKeyRef:
+              name: mypostgres-secret
+              key: replicationUserPassword
+
+                    </pre>
+
+                    <p>Apply the changes:</p>
+                    <pre>
+kubectl apply -f my-postgres.yaml
+                    </pre>
+
+                    <p>A cluster of 3 PostgreSql databases is deploying in Kubernetes.</p>
+
+                    <h2>4) The created resources</h2>
+
+                <p>Kubegres operator will then create a cluster of PostgreSql pods as follows:</p>
+                <p style="text-align: center"><img src="/includes/img/3Replicas.svg" /> </p>
+
+                <p>Let's check the created resources:</p>
+                <pre>
+kubectl get all -o wide
+                </pre>
+
+                <p>Example of output:</p>
+                <pre>
+NAME                 READY   STATUS
+pod/mypostgres-1-0   1/1     Running
+pod/mypostgres-2-0   1/1     Running
+pod/mypostgres-3-0   1/1     Running
+
+NAME                         TYPE
+service/mypostgres           ClusterIP
+service/mypostgres-replica   ClusterIP
+
+
+NAME                            READY
+statefulset.apps/mypostgres-1   1/1
+statefulset.apps/mypostgres-2   1/1
+statefulset.apps/mypostgres-3   1/1
+                </pre>
+
+                 <p>
+                     Kubegres has created 3 pods: mypostgres-1-0, mypostgres-2-0 and mypostgres-3-0. Each of those pods
+                     runs a PostgreSql DB.
+                 </p>
+                <p>
+                    From that point, we have a resilient cluster of 3 PostgreSql databases. It is time to connect a
+                    client app to it.
+                </p>
+
+                <h2>5) Connect client apps to PostgreSql</h2>
+
+                 <p>
+                     From the Kubegres YAML that we have created, the properties that a client app needs to use to connect to a PostgreSql database are:
+                     <ul>
+                        <li>host: mypostgres</li>
+                        <li>port: 5432</li>
+                        <li>username: postgres</li>
+                        <li>password: [value of mypostgres-secret/superUserPassword]</li>
+                    </ul>
+                 </p>
+
+                <h3>Host</h3>
+                <p>
+                    In this example, Kubegres created 2 Kubernetes services using the name defined in YAML (e.g. "mypostgres"):
+                    <ul>
+                        <li>a Kubernetes service "mypostgres" allowing to access to the Primary PostgreSql instances</li>
+                        <li>a Kubernetes service "mypostgres-replica" allowing to access to the Replica PostgreSql instances</li>
+                    </ul>
+                </p>
+                <p>
+                    Consequently, a client app running inside a Kubernetes cluster, would use the hostname "mypostgres" to
+                    connect to the Primary PostgreSql for read and write requests, and optionally it can also use the
+                    hostname "mypostgres-replica" to connect to any of the available Replica PostgreSql for read requests.
+                </p>
+                <p>
+                    This approach allows the client apps to access to the PostgreSql instances without any knowledge of IP addresses.
+                </p>
+
+                <p>Please see the following diagram showing the 2 services that are created by Kubegres based on the YAML above:</p>
+
+                <p style="text-align: center"><img src="/includes/img/2Services.svg" /> </p>
+
+                <p>
+                    If the Primary PostgreSql crashes, the automatic failover
+                    process will promote a Replica PostgreSql as a Primary. This process will be transparent for client
+                    apps as long as they are using the service name (e.g. "mypostgres") as the hostname. More details
+                    about this topic in the doc <a href="/doc/replication-and-failover.html">Replication and failover</a>.
+                </p>
+
+                <h3>Port</h3>
+                <p>
+                    By default, PostgreSql is accessible via the port 5432. It is possible to modify this by adding the
+                    property "port" in the YAML above. All possible YAML properties are defined in the doc
+                    <a href="/doc/properties-explained.html">all properties explained</a>.
+                </p>
+
+                <h3>Username and Password</h3>
+                <p>
+                    By default, in the created pod, the PostgreSql username is named "postgres"
+                    and its password is set in the environment variable "POSTGRES_PASSWORD" using the value in [mypostgres-secret/superUserPassword].
+                </p>
+
+                <p>
+                    The username "postgres" is a super user. Consequently, it is recommended to create an additional user
+                    with limited permissions, for example with specific access permissions to a set of database(s). It is
+                    possible to do so by creating:
+                    <ul>
+                        <li>
+                            an environment variable which contains the password of a custom PostgreSql user to
+                            create, as shown <a href="/doc/set-env-vars.html">here</a>.
+                        </li>
+                        <li>
+                            a ConfigMap where we can override the bash script "primary_init_script.sh"
+                            as shown <a href="/doc/set-config-map.html#primary_init_script">here</a>. In that bash script,
+                            it is possible to execute any SQL queries to create custom database(s), user(s) and anything
+                            else required to initialise PostgreSql.
+                        </li>
+                    </ul>
+                </p>
+
+                <div class="publicationDetails"><time datetime="2021-04-10" pubdate="pubdate">10 April 2021</time></div>
+
+                </article>
+            </div>
+        </div>
