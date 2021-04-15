@@ -5,8 +5,17 @@
             <div class="contentsBoxBody">
                 <article>
                     <p><b>Kubegres</b> allows to override its default configs and bash scripts based on your requirements.</p>
+                    <p>For each namespace where a Kubegres resource is created, Kubegres controller creates a base
+                        <a target="_blank" href="https://kubernetes.io/docs/concepts/configuration/configmap/">
+                            ConfigMap</a>
+                        resource with
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/controllers/spec/template/yaml/BaseConfigMapTemplate.yaml">
+                            this contents</a>.
+                        That base ConfigMap contains the default configs for all Kubegres resource(s) in that namespace.
+                        It defines default contents for "postgres.conf", "pg_hba.conf" and a backup logic in "backup_database.sh".
+                    </p>
                     <p>
-                        You can override the following configurations:
+                        You can override the following configurations in that base ConfigMap:
                         <ul>
                             <li><b>primary_init_script.sh</b>: a bash script which runs the 1st time a Primary PostgreSql container is created. This happens when a new Kubegres resource is deployed to create a new PostgreSql cluster. It is the right place to add instructions creating custom database(s) and user(s) for your requirement.</li>
                             <li><b>backup_database.sh</b>: if you enabled backup for your Kubegres resource, this bash script defines the actions to perform during a backup. It is executed regularly by a dedicated CronJob.</li>
@@ -15,12 +24,20 @@
                         </ul>
                     </p>
 
-                    <h1>Create a custom ConfigMap</h1>
+                    <h1>How to override the default base ConfigMap for all running Kubegres resources?</h1>
+                    <p>Kubegres automatically creates a base ConfigMap named
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/controllers/spec/template/yaml/BaseConfigMapTemplate.yaml">
+                            base-kubegres-config</a> in each namespace where Kubegres resources are running. </p>
+                    <p>You can edit that base ConfigMap with name "base-kubegres-config" and that would apply to all
+                        Kubegres resources in that namespace.</p>
+                    <p>Please see the contents of that base ConfigMap in
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/controllers/spec/template/yaml/BaseConfigMapTemplate.yaml">Git</a>.</p>
+
+                    <h1>How to override the default base ConfigMap for a specific Kubegres resource?</h1>
                     <p>
-                        If you would like to override the configs of a specific Kubegres resource, you can create a
-                        custom <a target="_blank" href="https://kubernetes.io/docs/concepts/configuration/configmap/">
-                        ConfigMap</a> by setting its name to the property "spec.customConfig" in your Kubegres config,
-                        as follows:
+                        If you would like to override the default configs for a specific Kubegres resource, you can create a
+                        custom ConfigMap in that namespace by setting its name in the property "spec.customConfig"
+                        in your Kubegres config, as follows:
                     </p>
                     <pre>
 apiVersion: io.reactive-tech/v1
@@ -58,7 +75,7 @@ spec:
                     </pre>
                     <p>
                         And in your custom ConfigMap you can override one or many of these configs: primary_init_script.sh,
-                        backup_database.sh, postgres.conf and pg_hba.conf as explained below.
+                        backup_database.sh, postgres.conf and pg_hba.conf. Please see the examples below.
                     </p>
 
                     <h2><a id="primary_init_script">Override primary_init_script.sh</a></h2>
@@ -195,12 +212,6 @@ data:
     host    all             all             all                     md5
     host    all             all             0.0.0.0/0               reject
                     </pre>
-
-                    <h1>Update the configs common to all running Kubegres resources</h1>
-                    <p>Kubegres operator automatically creates a base ConfigMap named "base-kubegres-config" in each namespace where Kubegres resources are running. </p>
-                    <p>You can override that base ConfigMap using kubectl. Any changes to that config applies to all Kubegres resources in a given namespace. </p>
-                    <p>Please see the contents of that base ConfigMap in <a target="_blank" href="#">Git</a>.</p>
-
 
                     <div class="publicationDetails"><time datetime="2021-04-10" pubdate="pubdate">10 April 2021</time></div>
 
