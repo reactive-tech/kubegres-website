@@ -147,7 +147,18 @@ spec:
 kubectl apply -f my-postgres.yaml
                     </pre>
 
-                    <p>A cluster of 3 PostgreSql databases is deploying in Kubernetes.</p>
+                    <p>
+                        A cluster of 3 PostgreSql instances is deploying in Kubernetes. Each PostgreSql instance is a pod.
+                        Check their status until they are "Running":
+                    </p>
+                    <pre>
+kubectl get pods -o wide -w
+                    </pre>
+                    <p>Kubegres logs events about the state of each PostgreSql cluster. Those events provide valuable information
+                        and would be very useful to debug any issue. We can access to them, as follows:</p>
+                    <pre>
+kubectl get events
+                    </pre>
 
                     <h2>4) The created resources</h2>
 
@@ -156,40 +167,43 @@ kubectl apply -f my-postgres.yaml
 
                 <p>Let's check the created resources:</p>
                 <pre>
-kubectl get all -o wide
+kubectl get pod,statefulset,svc,configmap -o wide
                 </pre>
 
                 <p>Example of output:</p>
                 <pre>
-NAME                 READY   STATUS
-pod/mypostgres-1-0   1/1     Running
-pod/mypostgres-2-0   1/1     Running
-pod/mypostgres-3-0   1/1     Running
-
-NAME                         TYPE
-service/mypostgres           ClusterIP
-service/mypostgres-replica   ClusterIP
-
+NAME                 READY   STATUS    NODE
+pod/mypostgres-1-0   1/1     Running   worker1
+pod/mypostgres-2-0   1/1     Running   worker2
+pod/mypostgres-3-0   1/1     Running   worker4
 
 NAME                            READY
 statefulset.apps/mypostgres-1   1/1
 statefulset.apps/mypostgres-2   1/1
 statefulset.apps/mypostgres-3   1/1
+
+NAME                         TYPE
+service/mypostgres           ClusterIP
+service/mypostgres-replica   ClusterIP
+
+NAME
+configmap/base-kubegres-config
                 </pre>
 
                 <p>
                      Kubegres has created 3 pods: "mypostgres-1-0", "mypostgres-2-0" and "mypostgres-3-0". Each of those pods
-                     runs a PostgreSql DB and are associated to a StatefulSet resource with same name.
+                     runs a PostgreSql DB and are associated to a StatefulSet resource with the same name. And each pod is
+                    deployed in a distinct node to ensure strong resiliency in the case of a node failure.
                 </p>
                 <p>
-                    Moreover, it create 2 Kubernetes services: "mypostgres" and "mypostgres-replica". Those services allow
-                    client apps to access respectively to the Primary and Replica instances. There are more details in next section
-                    below about services.
+                    Moreover, it created 2 Kubernetes services: "mypostgres" and "mypostgres-replica". Those services allow
+                    client apps to access respectively to the Primary and Replica instances. There are more details about
+                    them in the next section below.
                 </p>
-                <p>Kubegres also creates a base ConfigMap named "
+                <p>Kubegres created a base ConfigMap named "
                     <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/controllers/spec/template/yaml/BaseConfigMapTemplate.yaml">
-                        base-kubegres-config</a>" in each namespace where Kubegres resources are running.
-                    For more details, please see the page <a href="set-config-map.html">Custom ConfigMap</a>.
+                        base-kubegres-config</a>". It does that in each namespace where Kubegres resources are running.
+                    For more details about base ConfigMap, please see the page <a href="set-config-map.html">Custom ConfigMap</a>.
                 </p>
                 <p>
                     From that point, we have a resilient cluster of 3 PostgreSql databases. It is time to connect a
