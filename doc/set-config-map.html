@@ -24,19 +24,23 @@
                         </ul>
                     </p>
 
-                    <h1>How to override the default base ConfigMap for all running Kubegres resources?</h1>
-                    <p>Kubegres automatically creates a base ConfigMap named
+                    <h1>How to override the default configurations for all running Kubegres resources?</h1>
+                    <p>As mentioned above, Kubegres automatically creates a base ConfigMap named
                         <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/controllers/spec/template/yaml/BaseConfigMapTemplate.yaml">
                             base-kubegres-config</a> in each namespace where Kubegres resources are running. </p>
-                    <p>You can edit that base ConfigMap with name "base-kubegres-config" and that would apply to all
-                        Kubegres resources in that namespace.</p>
-                    <p>Please see the contents of that base ConfigMap in
-                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/controllers/spec/template/yaml/BaseConfigMapTemplate.yaml">Git</a>.</p>
-
-                    <h1>How to override the default base ConfigMap for a specific Kubegres resource?</h1>
                     <p>
-                        If you would like to override the default configs for a specific Kubegres resource, you can create a
-                        custom ConfigMap in that namespace by setting its name in the property "spec.customConfig"
+                        If you would like to change that base ConfigMap, you can do so by using the tool "kubectl" and
+                        edit the resource with name "base-kubegres-config". That change would apply to all Kubegres
+                        resources in the same namespace:
+                    </p>
+                    <pre>
+kubectl edit configmap base-kubegres-config -n [a namespace]
+                    </pre>
+
+                    <h1>How to override the default configurations for a specific Kubegres resource?</h1>
+                    <p>
+                        If you would like to override the default configs for only a specific Kubegres resource, you can create a
+                        custom ConfigMap in that namespace and set its name to the property "spec.customConfig"
                         in your Kubegres config, as follows:
                     </p>
                     <pre>
