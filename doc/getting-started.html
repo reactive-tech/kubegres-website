@@ -11,14 +11,15 @@
 
                     <h2>Note about Kubegres and Kubernetes nodes</h2>
                     <p>
-                        If you are testing Kubegres on your local Kubernetes cluster, you need
-                        to use a tool such as <a target="_blank" href="https://kind.sigs.k8s.io/">Kind</a> which
-                        allows running a Kubernetes cluster with multiple nodes.  At the time of writing this
+                        If you would like to test Kubegres on your local Kubernetes cluster, you need to use tools which
+                        are capable of running a Kubernetes cluster with multiple nodes such as
+                        <a target="_blank" href="https://kind.sigs.k8s.io/">Kind</a>. At the time of writing this
                         tutorial, Minikube only allowed running a Kubernetes cluster with a single node and consequently
-                        it would not be the right tool to test Kubegres.
+                        it would not be the right tool to test Kubegres. If you use Minikube, Kubegres would create
+                        one Primary PostgreSql instance since there is only one node available.
                     </p>
                     <p>
-                        The reason is, Kubegres is using pod anti-affinity based on node, which means each PostgreSql instance is deployed
+                        The reason is, Kubegres is configured with "pod anti-affinity" based on node, which means each PostgreSql instance is deployed
                         on different node. For the same PostgreSql cluster, we cannot have 2 PostgreSql instances on the
                         same node. This approach is to ensure that in the case when a physical node is not available, we
                         have databases available on other physical nodes. This guarantees a stronger resiliency and
