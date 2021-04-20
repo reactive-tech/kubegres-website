@@ -4,12 +4,48 @@
             <div class="contentsBoxHeader">Replication and failover explained</div>
             <div class="contentsBoxBody">
                 <article>
-                    <p>Kubegres</b> operator's replication process uses
+
+                    <br/>
+                    <b>Streaming Replication</b>
+                    <p>Kubegres</b> uses
                         <a target="_blank" href="https://wiki.postgresql.org/wiki/Streaming_Replication">Streaming Replication</a>
                         between the Primary and Replica PostgreSql pods. This is the default replication mode of PostgreSql.
                     </p>
 
-                    <p>To explain how replication and fail-over work, we are going to take a use-case with:
+                    <b>Pod anti-affinity</b>
+                    <p>
+                        For a given PostgreSql cluster created with Kubegres, if there are sufficient number of nodes,
+                        Kubegres tries to apply "pod anti-affinity" based on nodes. This means, each PostgreSql instance
+                        is deployed on a separate node as long as there are sufficient nodes. This approach is to ensure
+                        that if a physical node is not available, databases are available on other physical nodes.
+                        This guarantees a higher resiliency and availability of the database.
+                    </p>
+                    <p>
+                        However, if there are not sufficient nodes in a Kubernetes cluster for the number of PostgreSql
+                        instances to deploy, then Kubegres will deploy more than one PostgreSql instances on the same node.
+                    </p>
+                    <p>
+                        Examples:
+                        <ul>
+                            <li>
+                                On a Kubernetes cluster of 3 nodes, we would like to deploy 3 instances of PostgreSql:
+                                Kubegres will deploy each PostgreSql instance on a separate node.
+                            </li>
+                            <li>
+                                On a Kubernetes cluster of 2 nodes, we would like to deploy 3 instances of PostgreSql:
+                                Kubegres will deploy one PostgreSql instance on a separate node and 2 PostgreSql instances on the
+                                same node.
+                            </li>
+                        </ul>
+                    </p>
+
+                    <p>
+                        In a production environment, we highly recommend having nodes on multiple datacenters to increase
+                        resiliency in the event where one datacenter is not available.
+                    </p>
+
+                    <h1>Use case</h1>
+                    <p>To explain how replication and failover work, we are going to take a use-case with:
                         <ul>
                             <li>a Kubernetes cluster of 4 nodes</li>
                             <li>a Kubegres resource is deployed with a PostgreSql cluster of 3 pods</li>
@@ -19,7 +55,7 @@
                     <p>For this use case, we will assume that the YAML in the page <a href="/doc/getting-started.html">Getting
                         started</a> was used when deploying Kubegres resource.</p>
 
-                    <h1>Deployment, Replication and Services</h1>
+                    <h2>Deployment, Replication and Services</h2>
 
                     <p>
                         The first time a Kubegres resource is created with the command "kubectl", the Kubegres operator
@@ -45,9 +81,9 @@
 
                     <p style="text-align: center"><img src="/includes/img/2Services.svg" /></p>
 
-                    <h1>Failover</h1>
+                    <h2>Failover</h2>
 
-                    <p>Kubegres operator is constantly monitoring whether the Primary PostgreSql requires a fail-over. For that it relies on:
+                    <p>Kubegres operator is constantly monitoring whether the Primary PostgreSql requires a failover. For that it relies on:
                         <ul>
                             <li>PostgreSql container's health: it regularly runs the executable
                                 <a target="_blank" href="https://www.postgresql.org/docs/9.3/app-pg-isready.html">pg_isready</a>
@@ -72,7 +108,7 @@
                         a failover of Primary on node 1 to a Replica on node 2:</p>
                     <p style="text-align: center"><img src="/includes/img/failover_3_Replicas_on_4_nodes.svg" /></p>
 
-                    <h1>How to mitigate failover for client applications</h1>
+                    <h2>How to mitigate failover for client applications</h2>
 
                     <p>A failover can take few seconds depending on how reactive is Kubernetes in notifying Kubegres about
                         an issue. To make this process as transparent as possible, client applications connecting to PostgreSql

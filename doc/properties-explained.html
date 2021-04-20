@@ -4,6 +4,16 @@
             <div class="contentsBoxHeader">All properties explained</div>
             <div class="contentsBoxBody">
                 <article>
+                    <p>
+                        The "Kubegres" API types are available in
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/api/v1/kubegres_types.go#L41">
+                            GitHub</a>.
+                    </p>
+                    <p>
+                        Kubegres uses predefined templates to create Kubernetes resources. Those templates are available in
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/tree/main/controllers/spec/template/yaml">
+                            GitHub</a>.
+                    </p>
                     <p> Please see below a Kubegres resource YAML containing all available properties, followed by a table explaining the meaning of each property:
                         <pre>
 apiVersion: kubegres.reactive-tech.io/v1
@@ -17,6 +27,9 @@ spec:
    replicas: 3
    image: postgres:13.2
    port: 5432
+
+   imagePullSecrets:
+      - name: my-private-docker-repo-secret
 
    database:
       size: 200Mi
@@ -77,6 +90,22 @@ spec:
                                     ship with a custom Docker image with obscure set of libraries. More details about
                                     the Postgres docker image in
                                     <a target="_blank" href="https://hub.docker.com/_/postgres">Docker Hub</a>.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;imagePullSecrets</td>
+                                <td>&nbsp;</td>
+                                <td>
+                                    Optional. <br/>
+                                    It allows to pull custom Postgres images from a private repo.
+                                    The images have to be compatible with
+                                    <a target="_blank" href="https://hub.docker.com/_/postgres">PostgreSql containers</a>.
+                                    <br/>
+                                    More details about the
+                                    <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#podspec-v1-core">
+                                        type
+                                    </a>
+                                    of this field (search for "imagePullSecrets" in the table).
                                 </td>
                             </tr>
                             <tr>

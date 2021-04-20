@@ -9,32 +9,11 @@
                         their data in real time.
                     </p>
 
-                    <h2>Note about Kubegres and Kubernetes nodes</h2>
-                    <p>
-                        If you would like to test Kubegres on your local Kubernetes cluster, you need to use tools which
-                        are capable of running a Kubernetes cluster with multiple nodes such as
-                        <a target="_blank" href="https://kind.sigs.k8s.io/">Kind</a>. At the time of writing this
-                        tutorial, Minikube only allowed running a Kubernetes cluster with a single node and consequently
-                        it would not be the right tool to test Kubegres. If you use Minikube, Kubegres would create
-                        one Primary PostgreSql instance since there is only one node available.
-                    </p>
-                    <p>
-                        The reason is, Kubegres is configured with "pod anti-affinity" based on node, which means each PostgreSql instance is deployed
-                        on different node. For the same PostgreSql cluster, we cannot have 2 PostgreSql instances on the
-                        same node. This approach is to ensure that in the case when a physical node is not available, we
-                        have databases available on other physical nodes. This guarantees a stronger resiliency and
-                        availability of the database.
-                    </p>
-                    <p>
-                        Consequently, if you deploy a cluster of PosgreSql with 3 instances, you have
-                        to make sure that your cluster has at least 3 nodes.
-                    </p>
-
                     <h2>1) Install Kubegres operator</h2>
 
                     <p>The installation needs to be done once. Run the following command in a Kubernetes cluster:</p>
                     <pre>
-kubectl apply -f https://raw.githubusercontent.com/reactive-tech/kubegres/v1.0/kubegres.yaml
+kubectl apply -f https://raw.githubusercontent.com/reactive-tech/kubegres/v1.1/kubegres.yaml
                     </pre>
 
                     <p>During the installation, "Kubegres" creates the namespace "kubegres-system" where it installs its
@@ -197,7 +176,7 @@ configmap/base-kubegres-config
                     deployed in a distinct node to ensure strong resiliency in the case of a node failure.
                 </p>
                 <p>
-                    Moreover, it created 2 Kubernetes services: "mypostgres" and "mypostgres-replica". Those services allow
+                    Moreover, it created 2 Kubernetes clusterIP services: "mypostgres" and "mypostgres-replica". Those services allow
                     client apps to access respectively to the Primary and Replica instances. There are more details about
                     them in the next section below.
                 </p>
@@ -207,6 +186,11 @@ configmap/base-kubegres-config
                     For more details about base ConfigMap, please see the page <a href="set-config-map.html">Custom ConfigMap</a>.
                 </p>
                 <p>
+                    Kubegres uses predefined templates to create Kubernetes resources. Those templates are available in
+                    <a target="_blank" href="https://github.com/reactive-tech/kubegres/tree/main/controllers/spec/template/yaml">
+                        GitHub</a>.
+                </p>
+                <p>
                     From that point, we have a resilient cluster of 3 PostgreSql databases. It is time to connect a
                     client app to that PostgreSql cluster.
                 </p>
@@ -214,7 +198,8 @@ configmap/base-kubegres-config
                 <h2>5) Connect client apps to PostgreSql</h2>
 
                  <p>
-                     From the Kubegres YAML that we have created, the properties that a client app needs to use to connect to a PostgreSql database are:
+                     Based on the Kubegres YAML that we have created, a client app located inside the same Kubernetes
+                     cluster would use the following configurations to connect to a PostgreSql database:
                      <ul>
                         <li>host: mypostgres</li>
                         <li>port: 5432</li>
@@ -225,7 +210,8 @@ configmap/base-kubegres-config
 
                 <h3>Host</h3>
                 <p>
-                    In this example, Kubegres created 2 Kubernetes services using the name defined in YAML (e.g. "mypostgres"):
+                    In this example, Kubegres created 2 Kubernetes clusterIP services using the name defined in YAML
+                    (e.g. "mypostgres"):
                     <ul>
                         <li>a Kubernetes service "mypostgres" allowing to access to the Primary PostgreSql instances</li>
                         <li>a Kubernetes service "mypostgres-replica" allowing to access to the Replica PostgreSql instances</li>
@@ -260,18 +246,13 @@ configmap/base-kubegres-config
 
                 <h3>Username and Password</h3>
                 <p>
-                    By default, in the created pod, the PostgreSql username is named "postgres"
-                    and its password is set in the environment variable "POSTGRES_PASSWORD" using the value in [mypostgres-secret/superUserPassword].
-                </p>
-
-                <p>
-                    The username "postgres" is a super user. Consequently, it is recommended to create an additional user
-                    with limited permissions, for example with specific access permissions to a set of database(s). It is
-                    possible to do so by creating:
+                    By default, the only available user is "postgres" which is a super user.
+                    Consequently, for your custom databases it is recommended to create an additional user with limited
+                    permissions, for example with specific access permissions to a set of database(s). It is possible to do so by creating:
                     <ul>
                         <li>
-                            an environment variable which contains the password of a custom PostgreSql user to
-                            create, as shown <a href="/doc/set-env-vars.html">here</a>.
+                            an environment variable which contains the password of your custom PostgreSql user,
+                            as explained <a href="/doc/set-env-vars.html">here</a>.
                         </li>
                         <li>
                             a ConfigMap where we can override the bash script "primary_init_script.sh"
@@ -280,6 +261,11 @@ configmap/base-kubegres-config
                             else required to initialise PostgreSql.
                         </li>
                     </ul>
+                </p>
+
+                <h2>Next</h2>
+                <p>
+                    You can read about how Kubegres manages <a href="replication-and-failover.html">replication and failover</a>.
                 </p>
 
                 <div class="publicationDetails"><time datetime="2021-04-10" pubdate="pubdate">10 April 2021</time></div>

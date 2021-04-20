@@ -4,10 +4,15 @@
             <div class="contentsBoxHeader">Kubegres</div>
             <div class="contentsBoxBody">
                 <article>
-                    <p><b>Kubegres</b> is a Kubernetes operator allowing to deploy a cluster of PostgreSql instances with data
+                    <p>
+                        <b>Kubegres</b> is a Kubernetes operator allowing to deploy a cluster of PostgreSql instances with data
                         replication enabled out-of-the box. It brings simplicity when using PostgreSql considering how
-                        complex managing stateful-set's life-cycle and data replication could be with Kubernetes.</p>
-                    <p>Kubegres has the following features:
+                        complex managing stateful-set's life-cycle and data replication could be with Kubernetes.
+                    </p>
+
+                    <h2>Features</h2>
+
+                    <p>
                         <ul>
                             <li>
                                 It creates a cluster of PostgreSql servers with data replication enabled: it creates a
@@ -15,7 +20,7 @@
                                 database in real-time to Replica pods.
                             </li>
                             <li>
-                                It manages fail-over: if a Primary PostgreSql crashes, it automatically promotes a Replica
+                                It manages failover: if a Primary PostgreSql crashes, it automatically promotes a Replica
                                 PostgreSql as a Primary.
                             </li>
                             <li>
@@ -43,9 +48,58 @@
                             </li>
                         </ul>
                     </p>
-                    <p><b>Kubegres</b> was developed by
+
+                    <p><a href="/doc/getting-started.html">Please click here to get started</a></p>
+
+                    <h2>Why to use Kubegres over other operators?</h2>
+                    <p>
+                        Kubegres is minimalist in terms of codebase compared to other open-source Postgres operators.
+                        It has the minimal and yet robust required features to manage a cluster of PostgreSql on Kubernetes.
+                        We aim keeping this project small and simple.
+                    </p>
+                    <p>Among many reasons, there are 5 main ones why we recommend Kubegres:
+                        <ul>
+                            <li>
+                                Standard: to manage replications, failover and backup, Kubegres is 100% relying on the
+                                PostgreSql standard libraries bundled in the
+                                <a target="_blank" href="https://hub.docker.com/_/postgres">PostgreSql containers</a>.
+                                It does not ship with any custom or third party libraries to manage those features.
+                            </li>
+                            <li>
+                                Small learning curve: if you are already familiar with the standard PostgreSql libraries,
+                                you can understand and admin Kubegres easily.
+                            </li>
+                            <li>
+                                Security: all other open source projects that we have evaluated do require their own
+                                custom Docker containers which ship with custom libraries. And in order to reduce the attack
+                                surface caused by additional dependencies, we have decided to only depend on the
+                                <a target="_blank" href="https://hub.docker.com/_/postgres">PostgreSql containers</a>
+                                created and maintained by the
+                                <a target="_blank" href="https://docs.docker.com/docker-hub/official_images/">Docker Official
+                                    Images team</a>.
+                            </li>
+                            <li>
+                                Portable: the approach above allows Kubegres to be compatible with any containers which
+                                derive from those <a target="_blank" href="https://hub.docker.com/_/postgres">PostgreSql containers</a>.
+                            </li>
+                            <li>
+                                Pure Go: Kubegres was entirely written in Go and no additional languages were used
+                                (e.g. Python, ...). And it uses the latest
+                                <a target="_blank" href="https://book.kubebuilder.io/">Kubebuilder</a>
+                                version 3 which is maintained by the official Kubernetes API Machinery Special Interest
+                                Group (SIG).
+                            </li>
+                        </ul>
+                    </p>
+
+                    <p><a href="/doc/getting-started.html">Please click here to get started</a></p>
+
+                    <h2>Tell me more</h2>
+                    <p>
+                        Kubegres was developed by
                         <a target="_blank" href="https://www.reactive-tech.io/">Reactive Tech Limited</a>
-                        and Alex Arica as the lead developer.
+                        and Alex Arica as the lead developer. Reactive Tech offers <a href="support/">support services</a>
+                        for Kubegres, Kubernetes and PostgreSql.
                     </p>
                     <p>
                         It is Open-Source and available on GitHub:
@@ -57,7 +111,9 @@
                         Kubernetes APIs using CRDs. Kubebuilder is maintained by the official Kubernetes API Machinery
                         Special Interest Group (SIG).
                     </p>
+
                     <p><a href="/doc/getting-started.html">Please click here to get started</a></p>
+
                 </article>
             </div>
         </div>
