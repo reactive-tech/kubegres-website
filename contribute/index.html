@@ -1,0 +1,277 @@
+<gigo-include-in file="includes/main-no-news-template.html" />
+
+        <div class="contentsBox">
+            <div class="contentsBoxHeader">How to contribute</div>
+            <div class="contentsBoxBody">
+                <article>
+                    <p>
+                        Kubegres is open source and available on
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres">GitHub</a>.
+                        This page contains the instructions about how to contribute and make Kubegres a better open-source project.
+                    </p>
+
+                    <h1>Contribute to documentation</h1>
+                    <p>
+                        Kubegres' documentation is published in this current website. To update this website and the documentation,
+                        please modify the <a target="_blank" href="https://github.com/reactive-tech/kubegres-website">source code here</a>
+                        and raise a pull request. Once your changes are approved, they will be released by the approver.
+                    </p>
+
+                    <h1>Contribute to Kubegres operator</h1>
+
+                    <h2>Create an issue</h2>
+                    <p>
+                        Before implementing any code, we need to create an issue
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/issues">here</a>.
+                        Please make sure to set a label to the issue ticket. If the issue is a bug fix, you can start
+                        implementing it without waiting for the feedback from an approver. However, if it is a new feature,
+                        enhancement, etc... an approver will reply to your ticket and let you know if it is approved.
+                        Once it is approved, you can start implementing it.
+                    </p>
+
+                    <h2>Install Kind</h2>
+                    <p>
+                        Before implementing a change, we need to set-up a local environment. Kubegres'
+                        acceptance tests rely on <a target="_blank" href="https://kind.sigs.k8s.io/">Kind</a>, a tool
+                        for running a local Kubernetes cluster with multiple nodes.
+                    </p>
+                    <p>To install Kind, please read their
+                        <a target="_blank" href="https://kind.sigs.k8s.io/docs/user/quick-start/#installation">
+                            installation section.</a>
+                    </p>
+                    <p>Once installed, create a cluster config file:</p>
+                    <pre>
+vi ~/kind/cluster.yaml
+                    </pre>
+                    <p>Add the config below:</p>
+                    <pre>
+# Cluster with 4 worker nodes
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+- role: worker
+- role: worker
+- role: worker
+- role: worker
+                    </pre>
+                    <p>Create a cluster:</p>
+                    <pre>
+kind create cluster --config ~/kind/cluster.yaml
+                    </pre>
+                    <p>Now Kind is running, we can start implementing.</p>
+
+                    <h2>Clone Kubegres' source code</h2>
+                    <p>SSH:</p>
+                    <pre>
+git@github.com:reactive-tech/kubegres.git
+                    </pre>
+                    <p>HTTPS:</p>
+                    <pre>
+https://github.com/reactive-tech/kubegres.git
+                    </pre>
+                    <p>GutHub CLI:</p>
+                    <pre>
+gh repo clone reactive-tech/kubegres
+                    </pre>
+
+                    <p>
+                        Kubegres' source code is organised as follows:
+                        <ul>
+                            <li>
+                                "Kubegres" is a Kubernetes' "kind" with its API and its types are all defined in
+                                <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/api/v1/kubegres_types.go">
+                                api/v1/kubegres_types.go</a>
+                            </li>
+                            <li>
+                                the templates used to create Kubernetes resources (e.g. Services, StatefulSets, ...) are
+                                in the folder <a target="_blank" href="https://github.com/reactive-tech/kubegres/tree/main/controllers/spec/template/yaml">
+                                controllers/spec/template/yaml/</a>
+                            </li>
+                            <li>
+                                the controller managing the states of the PostgreSql cluster is in
+                                <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/controllers/kubegres_controller.go">
+                                controllers/kubegres_controller.go</a>
+                            </li>
+                            <li>
+                                the acceptance tests are in the folder
+                                <a target="_blank" href="https://github.com/reactive-tech/kubegres/tree/main/test">test/</a>.
+                                The file <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/test/suite_test.go">
+                                test/suite_test.go</a> is used to run all acceptance tests. Note it takes about 1h to run them all.
+                            </li>
+                        </ul>
+                        <p></p>
+                    </p>
+
+                    <h2>Deploy your change in a local Kubernetes cluster</h2>
+                    <p>
+                        Once you made a code change locally, assuming that your local Kubernetes cluster was started
+                        using Kind, please run the command below to deploy your local changes to Kubernetes:
+                    </p>
+                    <pre>
+make run
+                    </pre>
+                    <p>
+                        The above deploys and run Kubegres controller in Kubernetes. The console where you executed "make run"
+                        contains valuable information about the states of Kubegres.
+                    </p>
+                    <p>
+                        Now we are ready to create a PostgreSql cluster in order to manually test those changes. Please see below
+                        an example of command creating a PostgreSql cluster using the predefined YAML files in the folder
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/tree/main/config/localresource/default-namespace">
+                            config/localresource/default-namespace/</a>:
+                    </p>
+                    <pre>
+kubectl apply -k config/localresource/default-namespace/
+                    </pre>
+                    <p>It creates a cluster of 3 PostgreSql instances in the default namespace.</p>
+                    <p>Wait until all pods are in a "Running" status:</p>
+                    <pre>
+kubectl get pods -o wide -w
+                    </pre>
+                    <p>
+                        While the PostgreSql pods are deploying, check the console where you executed "make run"
+                        to monitor whether there are any errors. If everything goes well you should see:
+                    </p>
+                    <pre>
+Active Blocking-Operation: None
+...
+Database StorageClass states.   {"IsDeployed": true, "name": "standard"}
+
+Base Config states      {"IsDeployed": true, "name": "base-kubegres-config"}
+
+Custom Config states    {"IsDeployed": true, "name": "mypostgres-conf"}
+
+All StatefulSets deployment states:     {"Spec expected to deploy": 3, "Nbre Deployed": 3}
+
+<b>Primary states:         {"IsDeployed": true, "Name": "mypostgres-1", "IsReady": true, "Pod Name": "mypostgres-1-0", "Pod IsDeployed": true, "Pod IsReady": true, "Pod IsStuck": false}</b>
+
+<b>Replica states:         {"IsDeployed": true, "Name": "mypostgres-2", "IsReady": true, "Pod Name": "mypostgres-2-0", "Pod IsDeployed": true, "Pod IsReady": true, "Pod IsStuck": false}</b>
+
+<b>Replica states:         {"IsDeployed": true, "Name": "mypostgres-3", "IsReady": true, "Pod Name": "mypostgres-3-0", "Pod IsDeployed": true, "Pod IsReady": true, "Pod IsStuck": false}</b>
+
+Primary Service states:         {"IsDeployed": true, "name": "mypostgres"}
+Replica Service states:         {"IsDeployed": true, "name": "mypostgres-replica"}
+BackUp states.  {"IsCronJobDeployed": false, "IsPvcDeployed": false, "CronJobLastScheduleTime": ""}
+                    </pre>
+
+                    <h2>Update the acceptance tests</h2>
+                    <p>
+                        If your changes are not covered by the existing acceptance tests, please update the existing tests or
+                        add a new test in the folder
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/tree/main/test">test/</a>
+                    </p>
+
+                    <h2>Run the acceptance tests</h2>
+
+                    <p>
+                        Before running the tests, make sure the IP address set to the constant "DbHost", located in the file
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/test/resourceConfigs/ConfigForTest.go">
+                            ConfigForTest.go</a>, matches with the address of any of the nodes in your local Kubernetes cluster:
+                    </p>
+                    <pre>
+DbHost = "172.19.0.2"
+                    </pre>
+
+                    <p>You can delete your local Kubernetes cluster since the acceptance tests will create one automatically:</p>
+                    <pre>
+kind delete cluster
+                    </pre>
+
+                    <p>Run the acceptance tests:</p>
+                    <pre>
+make test
+                    </pre>
+                    <p>There are about 55 acceptance tests and it usually takes about 1h to run.</p>
+
+                    <h2>Commit your changes</h2>
+                    <p>
+                        Once all acceptance tests pass, you can commit your changes and raise a
+                        pull request. In the commit comments, please mention the issue ID
+                        (e.g. "<b>#5</b> : My changes description ..." ).
+                    </p>
+
+                    <h1>Create a release for Kubegres operator</h1>
+                    <p>
+                        This section is for contributers with "approver" permission. As an approver, you can create a
+                        release for Kubegres. The steps to create a release are:
+                        <ul>
+                            <li>locally run acceptance tests and deploy Kubegres operator into Docker Hub</li>
+                            <li>commit kubegres.yaml</li>
+                            <li>create a release using GitHub</li>
+                            <li>update Kugbres website "getting started" and "news" pages</li>
+                        </ul>
+                    </p>
+
+                    <h2>Test and deploy to Docker Hub</h2>
+                    <p>
+                        As an approver, you should be logged in Docker using the docker command line tool:
+                    </p>
+                    <pre>
+docker login
+                    </pre>
+                    <p>The credentials are provided to approvers by Reactive Tech Limited.</p>
+                    <p>
+                        Once you approved and merged all required pull request(s) in the main branch, please run the
+                        following command locally which will test and deploy the Kubegres controller in Docker Hub:
+                    </p>
+                    <pre>
+make deploy IMG=reactivetechio/kubegres:[version]
+                    </pre>
+
+                    <p>Set [version] by incrementing the minor version of the latest release.</p>
+
+                    <h2>How does versioning work?</h2>
+                    <p>
+                        The version "x.y" (e.g. "1.65") contains a major (x) and minor (y) parts. Each time a feature
+                        is added or a bug is fixed the minor version (y) is incremented. The major version (x) can only
+                        increment if a change is NOT backward compatible. Since it's disruptive, we don't plan having
+                        non-backward compatible changes for a very long time.
+                    </p>
+
+                    <h2>Commit kubegres.yaml</h2>
+                    <p>Once Kubegres container is deployed in Docker Hub, we can commit the file "kubegres.yaml".</p>
+                    <p>
+                        The command above "make deploy IMG=..." updated "kubegres.yaml" with the version that you set.
+                        Commit and push the file "kubegres.yaml" into the "main" branch.
+                    </p>
+
+                    <h2>Create a release on GitHub</h2>
+                    <p>
+                        Once all changes are in the main remote branch, we can create a new release by clicking on
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/releases">Draft a new release</a>
+                        on GitHub. When setting a version in the release form, please use the format "v[version]" (e.g. v1.65).
+                    </p>
+
+                    <h2>Update Kubegres website</h2>
+                    <p>
+                        Check out the repository of Kubegres website
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres-website">here</a>.
+                    </p>
+                    <p>
+                       Modify the page
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres-website/blob/main/doc/getting-started.html">Getting started</a>
+                        by updating the command which allows installing Kubegres with the new version, as follows:
+                    </p>
+                    <pre>
+kubectl apply -f https://raw.githubusercontent.com/reactive-tech/kubegres/<b>v[version]</b>/kubegres.yaml
+                    </pre>
+                    <p>
+                        And finally update the
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres-website/blob/main/includes/news.html">
+                        News page</a> by announcing the availability of the release.
+                    </p>
+                    <p>
+                        Raise a pull request and the changes will be approved and released by an approver.
+                    </p>
+                    <p>
+                        We hope this guide was useful, if you have any questions please create
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/issues">an issue</a> with a
+                        label "question". We will come back to you within 24h.
+                    </p>
+
+                    <div class="publicationDetails"><time datetime="2021-04-10" pubdate="pubdate">23 April 2021</time></div>
+
+                </article>
+            </div>
+        </div>
