@@ -110,16 +110,17 @@ nav a.navMenuVisited {
     text-decoration: none;
 }
 
-nav ul{
+nav ul {
     padding: 0;
     margin-left:10px;
+    margin-top: 27px
 }
 
-nav li{
+nav li {
     display:inline;
 }
 
-nav a{
+nav a {
     display:inline-block;
     padding: 10px;
 }
