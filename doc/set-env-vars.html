@@ -16,13 +16,13 @@
                     <p>
                         You can set your custom environment variables in Kubegres YAML. For example, you can create
                         an environment variable which contains the password of a custom PostgreSql user. You can then access
-                        to that env-variable in an <a href="/doc/override_default_configs.html#primary_init_script">
+                        to that env-variable in an <a href="/doc/override-default-configs.html#primary_init_script">
                         initialisation script</a> in which you can create a custom PostgreSql user with that password.
                     </p>
                     <p>
                         Please see in the YAML below 2 custom env-variables "$POSTGRES_MY_DB_PASSWORD" and "$MY_OTHER_VAR".
                         The env-variable $POSTGRES_MY_DB_PASSWORD is used in a PostgreSql
-                        <a href="/doc/override_default_configs.html#primary_init_script">initialisation script example</a>.
+                        <a href="/doc/override-default-configs.html#primary_init_script">initialisation script example</a>.
                     </p>
                     <pre>
 apiVersion: kubegres.reactive-tech.io/v1
