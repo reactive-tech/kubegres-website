@@ -184,7 +184,7 @@ configmap/base-kubegres-config
                 <p>Kubegres created a base ConfigMap named "
                     <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/controllers/spec/template/yaml/BaseConfigMapTemplate.yaml">
                         base-kubegres-config</a>". It does that in each namespace where Kubegres resources are running.
-                    For more details about base ConfigMap, please see the page <a href="set-config-map.html">Custom ConfigMap</a>.
+                    For more details about base ConfigMap, please see the page <a href="override_default_configs.html">Override the default configurations</a>.
                 </p>
                 <p>
                     Kubegres uses predefined templates to create Kubernetes resources. Those templates are available in
@@ -257,7 +257,7 @@ configmap/base-kubegres-config
                         </li>
                         <li>
                             a ConfigMap where we can override the bash script "primary_init_script.sh"
-                            as shown <a href="/doc/set-config-map.html#primary_init_script">here</a>. In that bash script,
+                            as shown <a href="/doc/override_default_configs.html#primary_init_script">here</a>. In that bash script,
                             it is possible to execute any SQL queries to create custom database(s), user(s) and anything
                             else required to initialise PostgreSql.
                         </li>
