@@ -1,9 +1,8 @@
 body {
     background-color: #f8f8f8;
     color: #000000;
-    max-width: 1200px;
-    font-family: "DejaVu Serif";
-    font-size: 16px;
+    font-family: sans-serif;
+    font-size: 17px;
 }
 
 h1 {
@@ -132,14 +131,15 @@ main {
     margin-top: 5px;
     padding: 0;
     display: flex;
+    justify-content: center;
 }
 
 
 /* CONTENTS */
 
 div.mainContents {
-    width: 100%;
     min-width: 380px;
+    max-width: 1200px;
 }
 
 div.contentsBox {
@@ -175,7 +175,8 @@ div.newsBox {
 @media only screen and (min-width: 780px) {
     div.newsBox {
         display: block;
-        width: 380px;
+        min-width: 300px;
+        width: 300px;
         height: min-content;
         border: 1px solid #666666;
         margin-left: 10px;
