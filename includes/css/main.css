@@ -138,13 +138,13 @@ main {
 /* CONTENTS */
 
 div.mainContents {
+    width: 100%;
     min-width: 380px;
     max-width: 1200px;
 }
 
 div.contentsBox {
     min-width: 300px;
-    max-width: 2000px;
     height: min-content;
     border:1px solid #666666;
     margin-bottom: 10px;
