@@ -21,6 +21,9 @@ kind: Kubegres
 metadata:
   name: mypostgres
   namespace: default
+  annotations:
+    imageregistry: "https://hub.docker.com/"
+    nginx.ingress.kubernetes.io/affinity: cookie
 
 spec:
 
@@ -77,6 +80,25 @@ spec:
                                 </td>
                             </tr>
                             <tr>
+                                <td>namespace</td>
+                                <td>default</td>
+                                <td>
+                                    <b>Optional.</b> <br/>The namespace where the Kubegres resource will be created and
+                                    a PostgreSql cluster will be deployed.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>annotations</td>
+                                <td>&nbsp;</td>
+                                <td>
+                                    <b>Optional.</b> <br/>The annotations to pass to the created Pods and StatefulSets.
+                                    You can set as many annotations as you need.
+                                    <br/>As an example, in the YAML above we set the annotations:
+                                    <br/>- imageregistry: "https://hub.docker.com/
+                                    <br/>- nginx.ingress.kubernetes.io/affinity: cookie.
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>spec<br/>&nbsp;replicas</td>
                                 <td>&nbsp;</td>
                                 <td><b>Required.</b> <br/> It defines a cluster of 3 Postgres pods, one primary server and 2 replica servers. If we set this value to 1, it will only create a primary server without any replica servers.</td>
@@ -111,12 +133,14 @@ spec:
                             <tr>
                                 <td>spec<br/>&nbsp;port</td>
                                 <td>5432</td>
-                                <td>Optional. <br/> The port exposed by PostgreSql docker container allowing to access to PostgreSql server.</td>
+                                <td>Optional. <br/> The port exposed by PostgreSql docker container allowing to access to
+                                    PostgreSql server.</td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;database<br/>&nbsp;&nbsp;size</td>
                                 <td>&nbsp;</td>
-                                <td><b>Required.</b> <br/> The max size of all database(s) managed by a PostgreSql server. We use "Mi" for Megabyte and "Gi" for Gigabyte.</td>
+                                <td><b>Required.</b> <br/> The max size of all database(s) managed by a PostgreSql server.
+                                    We use "Mi" for Megabyte and "Gi" for Gigabyte.</td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;database<br/>&nbsp;&nbsp;storageClassName</td>

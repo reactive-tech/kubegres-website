@@ -13,7 +13,7 @@
 
                     <p>The installation needs to be done once. Run the following command in a Kubernetes cluster:</p>
                     <pre>
-kubectl apply -f https://raw.githubusercontent.com/reactive-tech/kubegres/v1.3/kubegres.yaml
+kubectl apply -f https://raw.githubusercontent.com/reactive-tech/kubegres/v1.4/kubegres.yaml
                     </pre>
 
                     <p>During the installation, "Kubegres" creates the namespace "kubegres-system" where it installs its
@@ -106,7 +106,6 @@ spec:
    database:
       size: 200Mi
       storageClassName: standard
-      volumeMount: /var/lib/postgresql/data
 
    env:
       - name: POSTGRES_PASSWORD
@@ -122,6 +121,12 @@ spec:
               key: replicationUserPassword
 
                     </pre>
+                    <p>
+                        Note: the YAML above contains the minimum required configurations to deploy a cluster of PostgreSql.
+                        There are more configuration options available, such as the possibility to add annotations,
+                        retrieve the container image from a private repo, enable backup, ...
+                        Please see <a href="/doc/properties-explained.html">the full list of options here.</a>
+                    </p>
 
                     <p>Apply the changes:</p>
                     <pre>
