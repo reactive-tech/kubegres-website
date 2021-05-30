@@ -24,6 +24,13 @@
                         </ul>
                     </p>
 
+                    <h2>Examples from Kubegres user(s)</h2>
+                    <p>
+                        <b>@laukaichung</b> <a target="_blank" href="https://github.com/laukaichung/kubegres-deploy">published a great example in GitHub</a>
+                        showing how the scripts "backup_database.sh" and "primary_init_script.sh" were overridden in order to use S3 for
+                        backup storage and initialization.
+                    </p>
+
                     <h1>How to override the default configurations for all running Kubegres resources?</h1>
                     <p>As mentioned above, Kubegres automatically creates a base ConfigMap named
                         <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/controllers/spec/template/yaml/BaseConfigMapTemplate.yaml">
@@ -37,57 +44,11 @@
 kubectl edit configmap base-kubegres-config -n [namespace]
                     </pre>
 
-
-                    <h1>Note about applying ConfigMap changes to existing PostgreSql pods</h1>
-                    <p>
-                        When we make a change to a ConfigMap, Kubernetes does not notify the Kubegres controller about that update.
-                        Consequently, if we want to apply those changes to existing running PostgreSql pods, when have
-                        to manually restart them.
-                    </p>
-                    <p>
-                        However, restarting pods could trigger the failover process and Kubegres may wrongly think that
-                        the primary PostgreSql pod is not available and would failover to a Replica PostgreSql pod.
-                        To avoid Kubegres controller to failover, we need to pause it.
-                    </p>
-                    <p>
-                        The instructions to follows are:
-                        <ul>
-                            <li>
-                                Update your ConfigMap (e.g. "base-kubegres-config", or your custom ConfigMap)
-                            </li>
-                            <li>
-                                Pause the Kubegres controller by running:
-                                <pre>
-kubectl scale --replicas=0 deployment.apps/kubegres-controller-manager -n kubegres-system
-                                </pre>
-                            </li>
-                            <li>
-                                Restart the StatefulSets of your Postgres cluster (in this example my cluster's name is "mypostgres" and I have 3 pods running):
-                                <pre>
-kubectl rollout restart statefulset mypostgres-1 mypostgres-2 mypostgres-3
-                                </pre>
-                            </li>
-                            <li>
-                                From that point your pods are using the latest version of the ConfigMap. Check the pods are in a running state:
-                                <pre>
-kubectl get pods
-                                </pre>
-                            </li>
-                            <li>
-                                If the pods are running and healthy, then resume the Kubegres controller by running:
-                                <pre>
-kubectl scale --replicas=1 deployment.apps/kubegres-controller-manager -n kubegres-system
-                                </pre>
-                            </li>
-                        </ul>
-                    </p>
-
-
                     <h1>How to override the default configurations for a specific Kubegres resource?</h1>
                     <p>
-                        If you would like to override the default configs for only a specific Kubegres resource, you can create a
+                        If you would like to override the default configs for a specific PostgreSql cluster only, you can create a
                         custom ConfigMap in that namespace and set its name to the property "spec.customConfig"
-                        in your Kubegres config, as follows:
+                        in your Kubegres YAML, as follows:
                     </p>
                     <pre>
 apiVersion: kubegres.reactive-tech.io/v1
@@ -257,6 +218,51 @@ data:
     host    all             all             all                     md5
     host    all             all             0.0.0.0/0               reject
                     </pre>
+
+
+                    <h1>Note about applying ConfigMap changes to existing PostgreSql pods</h1>
+                    <p>
+                        When we make a change to a ConfigMap, Kubernetes does not notify the Kubegres controller about that update.
+                        Consequently, if we want to apply those changes to existing running PostgreSql pods, when have
+                        to manually restart them.
+                    </p>
+                    <p>
+                        However, restarting pods could trigger the failover process and Kubegres may wrongly think that
+                        the primary PostgreSql pod is not available and would failover to a Replica PostgreSql pod.
+                        To avoid Kubegres controller to failover, we need to pause it.
+                    </p>
+                    <p>
+                        The instructions to follows are:
+                    <ul>
+                        <li>
+                            Update your ConfigMap (e.g. "base-kubegres-config", or your custom ConfigMap)
+                        </li>
+                        <li>
+                            Pause the Kubegres controller by running:
+                            <pre>
+kubectl scale --replicas=0 deployment.apps/kubegres-controller-manager -n kubegres-system
+                                </pre>
+                        </li>
+                        <li>
+                            Restart the StatefulSets of your Postgres cluster (in this example my cluster's name is "mypostgres" and I have 3 pods running):
+                            <pre>
+kubectl rollout restart statefulset mypostgres-1 mypostgres-2 mypostgres-3
+                                </pre>
+                        </li>
+                        <li>
+                            From that point your pods are using the latest version of the ConfigMap. Check the pods are in a running state:
+                            <pre>
+kubectl get pods
+                                </pre>
+                        </li>
+                        <li>
+                            If the pods are running and healthy, then resume the Kubegres controller by running:
+                            <pre>
+kubectl scale --replicas=1 deployment.apps/kubegres-controller-manager -n kubegres-system
+                                </pre>
+                        </li>
+                    </ul>
+                    </p>
 
                     <div class="publicationDetails"><time datetime="2021-04-10" pubdate="pubdate">10 April 2021</time></div>
 
