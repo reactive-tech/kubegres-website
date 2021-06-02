@@ -1,0 +1,3 @@
+outputDir: deployment/prod/output
+patternFilesToExclude: "deploy.sh .gitignore README.md"
+patternDirsToExclude: "deployment .idea"

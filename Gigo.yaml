@@ -1,2 +1,0 @@
-#outputDir: /var/www/html
-patternFilesToExclude: "gigo Dockerfile createContainer.sh"
