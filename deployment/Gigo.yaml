@@ -1,0 +1,3 @@
+outputDir: /usr/share/dev-output/kubegres-website
+patternFilesToExclude: "deploy.sh .gitignore README.md"
+patternDirsToExclude: "deployment .idea .git"

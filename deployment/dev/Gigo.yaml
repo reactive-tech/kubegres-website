@@ -1,3 +1,0 @@
-outputDir: /var/www/html
-patternFilesToExclude: "deploy.sh .gitignore README.md"
-patternDirsToExclude: "deployment .idea"

@@ -1,30 +1,34 @@
-function checkArgs() {
-  if [ -z "$1" ];
-    then
-      return 0
-  elif [ $1 != 'dev' ] && [ $1 != 'prod' ];
-  then
-      return 0
-  fi
+#!/bin/bash
 
-  return 1
-}
+source ~/source/kubernetes-cluster/local-cluster/util/deploymentUtilities.sh
 
-if checkArgs $1;
-  then
-    echo "Expected argument missing."
-    echo "A valid argument is either: 'dev' or 'prod'."
-    exit 1
+exitIfEnvArgIsMissing $1
+exitIfVersionArgIsMissing $2
+
+BUILD_ENV=$1
+BUILD_VERSION=$2
+
+BUILD_IMG="reactivetechio/kubegres-website:$BUILD_VERSION"
+BUILD_IMG_DEPLOYMENT_NAME="kubegres-website"
+BUILD_IMG_NAMESPACE="static-websites"
+
+if [ "$BUILD_ENV" == "dev" ]; then
+  BUILD_IMG="localhost:5000/$BUILD_IMG"
 fi
 
-BUILD_ENVIRONMENT=$1
+echo "Deploying $BUILD_IMG in ${BUILD_ENV} environment"
 
-echo "Deploying kubegres-website in ${BUILD_ENVIRONMENT}"
+gigo deployment/Gigo.yaml
+cp deployment/Dockerfile /usr/share/dev-output/kubegres-website
 
-gigo deployment/${BUILD_ENVIRONMENT}/Gigo.yaml
+if [ "$BUILD_ENV" == "prod" ]; then
+    buildAndDeployedDockerImg $BUILD_IMG
 
-if [ $BUILD_ENVIRONMENT == 'prod' ];
- then
-    docker build -t reactivetechio/kubegres-website:latest -f deployment/prod/Dockerfile .
-    docker push reactivetechio/kubegres-website:latest
+elif [ "$BUILD_ENV" == "dev" ]; then
+
+  if ! isDevImageLocallyDeployed $BUILD_IMG $BUILD_IMG_DEPLOYMENT_NAME $BUILD_IMG_NAMESPACE; then
+    buildAndDeployedDockerImg $BUILD_IMG
+  fi
+
+  kubectl apply -f deployment/dev/deployment.yaml
 fi
