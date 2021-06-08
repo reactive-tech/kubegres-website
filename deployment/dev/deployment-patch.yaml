@@ -1,33 +1,15 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: kubegres-website
-  namespace: static-websites
 spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: kubegres-website
   template:
-    metadata:
-      labels:
-        app: kubegres-website
     spec:
-
       volumes:
         - name: kubegres-website-dev-putput-pv
           hostPath:
             path: /usr/share/dev-output/kubegres-website
             type: DirectoryOrCreate
 
-      imagePullSecrets:
-        - name: docker-reactive-tech
       containers:
         - image: localhost:5000/reactivetechio/kubegres-website:latest
           name: kubegres-website
-          ports:
-            - containerPort: 80
-              protocol: TCP
 
           volumeMounts:
             - name: kubegres-website-dev-putput-pv

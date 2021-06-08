@@ -30,5 +30,5 @@ elif [ "$BUILD_ENV" == "dev" ]; then
     buildAndDeployedDockerImg $BUILD_IMG
   fi
 
-  kubectl apply -f deployment/dev/deployment.yaml
+  kubectl patch deployment $BUILD_IMG_DEPLOYMENT_NAME -n $BUILD_IMG_NAMESPACE --patch "$(cat deployment/dev/deployment-patch.yaml)"
 fi
