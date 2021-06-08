@@ -4,7 +4,7 @@ spec:
       volumes:
         - name: kubegres-website-dev-putput-pv
           hostPath:
-            path: /usr/share/dev-output/kubegres-website
+            path: /usr/share/dev-output/static-websites/kubegres-website/image
             type: DirectoryOrCreate
 
       containers:

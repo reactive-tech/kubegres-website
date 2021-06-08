@@ -7,6 +7,7 @@ exitIfVersionArgIsMissing $2
 
 BUILD_ENV=$1
 BUILD_VERSION=$2
+REBUILD_DEV_IMAGE=$3
 
 BUILD_IMG="reactivetechio/kubegres-website:$BUILD_VERSION"
 BUILD_IMG_DEPLOYMENT_NAME="kubegres-website"
@@ -19,16 +20,24 @@ fi
 echo "Deploying $BUILD_IMG in ${BUILD_ENV} environment"
 
 gigo deployment/Gigo.yaml
-cp deployment/Dockerfile /usr/share/dev-output/kubegres-website
+cp deployment/Dockerfile /usr/share/dev-output/$BUILD_IMG_NAMESPACE/$BUILD_IMG_DEPLOYMENT_NAME
 
 if [ "$BUILD_ENV" == "prod" ]; then
-    buildAndDeployedDockerImg $BUILD_IMG
+  buildAndDeployedDockerImg $BUILD_IMG $BUILD_IMG_DEPLOYMENT_NAME $BUILD_IMG_NAMESPACE
 
 elif [ "$BUILD_ENV" == "dev" ]; then
 
   if ! isDevImageLocallyDeployed $BUILD_IMG $BUILD_IMG_DEPLOYMENT_NAME $BUILD_IMG_NAMESPACE; then
-    buildAndDeployedDockerImg $BUILD_IMG
+
+    buildAndDeployedDockerImg $BUILD_IMG $BUILD_IMG_DEPLOYMENT_NAME $BUILD_IMG_NAMESPACE
+    echo "To deploy the DEV image, we are patching the Deployment resource '$BUILD_IMG_DEPLOYMENT_NAME' in the namespace: '$BUILD_IMG_NAMESPACE'"
+    kubectl patch deployment $BUILD_IMG_DEPLOYMENT_NAME -n $BUILD_IMG_NAMESPACE --patch "$(cat deployment/dev/deployment-patch.yaml)"
+
+  elif [ "$REBUILD_DEV_IMAGE" == "r" ]; then
+
+    buildAndDeployedDockerImg $BUILD_IMG $BUILD_IMG_DEPLOYMENT_NAME $BUILD_IMG_NAMESPACE
+    echo "To deploy the latest DEV image, we are restarting the Deployment resource '$BUILD_IMG_DEPLOYMENT_NAME' in the namespace: '$BUILD_IMG_NAMESPACE'"
+    kubectl rollout restart deployment $BUILD_IMG_DEPLOYMENT_NAME -n $BUILD_IMG_NAMESPACE
   fi
 
-  kubectl patch deployment $BUILD_IMG_DEPLOYMENT_NAME -n $BUILD_IMG_NAMESPACE --patch "$(cat deployment/dev/deployment-patch.yaml)"
 fi
