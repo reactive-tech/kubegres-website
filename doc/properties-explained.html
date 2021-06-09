@@ -66,7 +66,7 @@ spec:
                         <table>
                             <tr>
                                 <th>Property</th>
-                                <th>Default value</th>
+                                <th>If not set in YAML, default value</th>
                                 <th>Meaning</th>
                             </tr>
                             <tr>
@@ -144,10 +144,10 @@ spec:
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;database<br/>&nbsp;&nbsp;storageClassName</td>
-                                <td>&nbsp;</td>
+                                <td>Uses the default storageClass defined in a Kubernetes cluster</td>
                                 <td>
-                                    <b>Required.</b> <br/> It defines the storage class which will be used to store
-                                    PostgreSql database. A volume backed by a Storage-Class is mounted into the path defined
+                                    Optional. <br/> It defines the storage class which will be used to store
+                                    PostgreSql database. A volume backed by a StorageClass is mounted into the path defined
                                     by "spec.database.volumeMount" (see below). Behind the scenes, Kubernetes creates a
                                     Persistence-Volume-Claim (PVC) for each pod and associates it to the given Storage-Class name.
                                 </td>

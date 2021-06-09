@@ -9,9 +9,9 @@ BUILD_ENV=$1
 BUILD_VERSION=$2
 REBUILD_DEV_IMAGE=$3
 
-BUILD_IMG="reactivetechio/kubegres-website:$BUILD_VERSION"
 BUILD_IMG_DEPLOYMENT_NAME="kubegres-website"
 BUILD_IMG_NAMESPACE="static-websites"
+BUILD_IMG="reactivetechio/$BUILD_IMG_DEPLOYMENT_NAME:$BUILD_VERSION"
 
 if [ "$BUILD_ENV" == "dev" ]; then
   BUILD_IMG="localhost:5000/$BUILD_IMG"
