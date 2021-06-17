@@ -1,3 +1,4 @@
+sourceDir: website
 outputDir: /usr/share/dev-output/static-websites/kubegres-website/image
 patternFilesToExclude: "deploy.sh .gitignore README.md"
 patternDirsToExclude: "deployment .idea .git"
