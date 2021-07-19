@@ -12,14 +12,14 @@
                     <p>To enable the backup option in a Postgres cluster, add the property "backup" to its Kubegres YAML, as in the example below:</p>
                     <pre>
 backup:
-    schedule: "* */1 * * *"
+    schedule: "0 */1 * * *"
     pvcName: my-backup-pvc
     volumeMount: /var/lib/backup
                     </pre>
 
                 <p>The above config has the following properties:
                     <ul>
-                        <li>"backup.schedule: "* */1 * * *" : it schedules a back-up every hour. Its format follows the standard <a target="_blank" href="https://en.wikipedia.org/wiki/Cron">Cron spec</a>.</li>
+                        <li>"backup.schedule: "0 */1 * * *" : it schedules a back-up every hour on the hour. Its format follows the standard <a target="_blank" href="https://en.wikipedia.org/wiki/Cron">Cron spec</a>.</li>
                         <li>"backup.pvcName: my-backup-pvc" : the Persistence-Volume-Claim (PVC) defining where the back-up data will be stored. A volume backed by a PVC is mounted into the path defined by "backup.volumeMount" (see below).</li>
                         <li>"backup.volumeMount: /var/lib/backup" : the location where the backup is stored in the docker image. A volume is mounted on that path using the PVC name defined by "database.pvcName".</li>
                     </ul>
@@ -43,7 +43,7 @@ spec:
       size: 200Mi
 
    <b>backup:
-       schedule: "* */1 * * *"
+       schedule: "0 */1 * * *"
        pvcName: my-backup-pvc
        volumeMount: /var/lib/backup</b>
 
