@@ -92,8 +92,42 @@
                         </ul>
                     </p>
 
-                    <p>Based on the above, when it is confirmed that Primary PostgreSql is unavailable, Kubegres starts the
-                        failover process in 2 steps:
+                    <p>
+                        It is possible to disable the automatic failover feature of Kubegres by setting this flag to false:
+                        'failover.isDisabled: false', e.g.:
+                    </p>
+                    <pre>
+kind: Kubegres
+metadata:
+  name: mypostgres
+  namespace: default
+
+spec:
+   ...
+   failover:
+      isDisabled: true
+   ...
+                    </pre>
+
+                    <p>
+                        It is also possible to manually promote a Replica as a Primary by specifying a Replica
+                        Pod's name in the field 'failover.promotePod: "mypostgres-2-0"', e.g.:
+                    </p>
+                    <pre>
+kind: Kubegres
+metadata:
+  name: mypostgres
+  namespace: default
+
+spec:
+   ...
+   failover:
+      promotePod: "mypostgres-2-0"
+   ...
+                    </pre>
+
+                    <p>Assuming that the automatic failover is enabled (and it is by default), when a Primary PostgreSql
+                        is unavailable, Kubegres starts the failover process in 2 steps:
                         <ul>
                             <li>Kubegres checks if there is a Replica PostgreSql pod available. In this example, we have 2 pods
                                 available on nodes 2 and 3. Kubegres would promote the Replica PostgreSql pod on node 2 as a Primary pod.
@@ -129,7 +163,7 @@
 
                     <p style="text-align: center"><img src="/includes/img/2Services.svg" /></p>
 
-                    <div class="publicationDetails"><time datetime="2021-04-10" pubdate="pubdate">10 April 2021</time></div>
+                    <div class="publicationDetails"><time datetime="2021-07-23" pubdate="pubdate">23 July 2021</time></div>
 
                 </article>
             </div>

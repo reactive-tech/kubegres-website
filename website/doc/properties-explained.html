@@ -14,7 +14,9 @@
                         <a target="_blank" href="https://github.com/reactive-tech/kubegres/tree/main/controllers/spec/template/yaml">
                             GitHub</a>.
                     </p>
-                    <p> Please see below a Kubegres resource YAML containing all available properties, followed by a table explaining the meaning of each property:
+                    <p>
+                        Please see below a Kubegres resource YAML containing all available properties with example values,
+                        followed by a table explaining the meaning of each property:
                         <pre>
 apiVersion: kubegres.reactive-tech.io/v1
 kind: Kubegres
@@ -40,6 +42,10 @@ spec:
       volumeMount: /var/lib/postgresql/data
 
    customConfig: mypostgres-conf
+
+   failover:
+      isDisabled: false
+      promotePod: "mypostgres-2-0"
 
    backup:
       schedule: "* */1 * * *"
@@ -83,7 +89,7 @@ spec:
                                 <td>namespace</td>
                                 <td>default</td>
                                 <td>
-                                    <b>Optional.</b> <br/>The namespace where the Kubegres resource will be created and
+                                    Optional. <br/>The namespace where the Kubegres resource will be created and
                                     a PostgreSql cluster will be deployed.
                                 </td>
                             </tr>
@@ -91,8 +97,8 @@ spec:
                                 <td>annotations</td>
                                 <td>&nbsp;</td>
                                 <td>
-                                    <b>Optional.</b> <br/>The annotations to pass to the created Pods and StatefulSets.
-                                    You can set as many annotations as you need.
+                                    Optional. <br/>The annotations to pass to the created Pods and StatefulSets.
+                                    We can set as many annotations as needed.
                                     <br/>As an example, in the YAML above we set the annotations:
                                     <br/>- imageregistry: "https://hub.docker.com/
                                     <br/>- nginx.ingress.kubernetes.io/affinity: cookie.
@@ -101,16 +107,18 @@ spec:
                             <tr>
                                 <td>spec<br/>&nbsp;replicas</td>
                                 <td>&nbsp;</td>
-                                <td><b>Required.</b> <br/> It defines a cluster of 3 Postgres pods, one primary server and 2 replica servers. If we set this value to 1, it will only create a primary server without any replica servers.</td>
+                                <td><b>Required.</b> <br/> It defines the number of PostgreSql instances (or Pods) to deploy in a cluster.<br/>
+                                    For example, if set to '3', Kubegres deploys 1 Primary Pod and 2 Replica Pods.
+                                    If set to '1', it will only create 1 Primary Pod without creating any Replica Pods.</td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;image</td>
                                 <td>&nbsp;</td>
                                 <td>
-                                    <b>Required.</b> <br/> It is the official PostgreSql docker image.
-                                    Kubegres works with the official PostgreSql docker image. Consequently, it does not
-                                    ship with a custom Docker image with obscure set of libraries. More details about
-                                    the Postgres docker image in
+                                    <b>Required.</b> <br/> The name of the Postgres Docker image.
+                                    Kubegres expects either a <a target="_blank" href="https://hub.docker.com/_/postgres">Postgres Docker official image</a> or any compatible image. <br/>
+                                    Consequently, Kubegres operator does not ship with a custom Docker image with obscure set of libraries.<br/>
+                                    More details about the Postgres docker image:
                                     <a target="_blank" href="https://hub.docker.com/_/postgres">Docker Hub</a>.
                                 </td>
                             </tr>
@@ -120,77 +128,129 @@ spec:
                                 <td>
                                     Optional. <br/>
                                     It allows to pull custom Postgres images from a private repo.
-                                    The images have to be compatible with
-                                    <a target="_blank" href="https://hub.docker.com/_/postgres">PostgreSql containers</a>.
+                                    The images have to be compatible with a
+                                    <a target="_blank" href="https://hub.docker.com/_/postgres">Postgres Docker official image</a>.
                                     <br/>
                                     More details about the
                                     <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#podspec-v1-core">
                                         type
                                     </a>
-                                    of this field (search for "imagePullSecrets" in the table).
+                                    of this field (search for "imagePullSecrets" in that page's table).
                                 </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;port</td>
                                 <td>5432</td>
-                                <td>Optional. <br/> The port exposed by PostgreSql docker container allowing to access to
-                                    PostgreSql server.</td>
+                                <td>Optional. <br/>
+                                    The port exposed by the Postgres docker container to access to the PostgreSql server.
+                                </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;database<br/>&nbsp;&nbsp;size</td>
                                 <td>&nbsp;</td>
-                                <td><b>Required.</b> <br/> The max size of all database(s) managed by a PostgreSql server.
+                                <td><b>Required.</b> <br/> The size of each Postgres Pod's database in a cluster.
                                     We use "Mi" for Megabyte and "Gi" for Gigabyte.</td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;database<br/>&nbsp;&nbsp;storageClassName</td>
-                                <td>Uses the default storageClass defined in a Kubernetes cluster</td>
+                                <td>Uses the default Storage-Class defined in a Kubernetes cluster</td>
                                 <td>
-                                    Optional. <br/> It defines the storage class which will be used to store
-                                    PostgreSql database. A volume backed by a StorageClass is mounted into the path defined
-                                    by "spec.database.volumeMount" (see below). Behind the scenes, Kubernetes creates a
-                                    Persistence-Volume-Claim (PVC) for each pod and associates it to the given Storage-Class name.
+                                    Optional. <br/> It defines the Storage-Class which will be used to store
+                                    PostgreSql database. <br/>
+                                    If it is not set, Kubegres operator uses the default Storage-Class available in a Kubernetes cluster. <br/>
+                                    Behind the scenes, Kubernetes creates a
+                                    Persistence-Volume-Claim (PVC) for each Postgres Pod and associates it to the given Storage-Class name.<br/>
                                 </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;database<br/>&nbsp;&nbsp;volumeMount</td>
                                 <td>/var/lib/postgresql/data</td>
-                                <td>Optional. <br/> It defines the storage class which will be used to store PostgreSql database. A volume backed by a Storage-Class is mounted into the path defined by "spec.database.volumeMount" (see below). Behind the scenes, PostgreSql creates a Persistence-Volume-Claim (PVC) for each pod and associates it to the given Storage-Class name.</td>
+                                <td>Optional. <br/>
+                                    It defines the path in the Postgres container where the database folder 'pgdata' is mounted.
+                                    The mount will be physically located in the volume (PVC) backed by a Storage-Class
+                                    (as defined in the above field 'database.storageClassName').
+                                </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;customConfig</td>
                                 <td>base-kubepostgres-config</td>
-                                <td>Optional. <br/> It allows setting the name of a ConfigMap which contains the configs files and their contents required by Kubegres. <br/> <a href="/doc/override-default-configs.html">More details here</a>.</td>
+                                <td>
+                                    Optional. <br/> It allows setting the name of a ConfigMap which contains the configs
+                                    files and their contents required by Kubegres. <br/>
+                                    <a href="/doc/override-default-configs.html">More details here</a>.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;failover<br/>&nbsp;&nbsp;isDisabled</td>
+                                <td>false</td>
+                                <td>
+                                    Optional.<br/> It disables the automatic failover feature for a cluster of PostgreSql.<br/>
+                                    If it is set to true and if a Primary or Replica PostgreSql instance is not available
+                                    then Kubegres will not attempt to failover and fix the cluster. <br/>
+                                    This option can be useful when manually maintaining a node (e.g. restarting it, patching it, ...)
+                                    and we do not want Kubegres to automatically failover a Primary or Replica instances during
+                                    that maintenance.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;failover<br/>&nbsp;&nbsp;promotePod</td>
+                                <td>&nbsp;</td>
+                                <td>
+                                    Optional.<br/> It allows to manually promote a Replica PostgreSql Pod as a Primary Pod.<br/>
+                                    It expects the name of a Replica Pod that we would like to promote as a Primary.<br/>
+                                    This option is independent from the value of the above field "failover.isDisabled".
+                                    It is always possible to manually promote a Pod, whether "failover.isDisabled" is set to true or to false.
+                                </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;backup<br/>&nbsp;&nbsp;schedule</td>
                                 <td>&nbsp;</td>
-                                <td>Optional, unless if we want to enable backup. <br/> It schedules a back-up every hour. Its format follows the standard <a target="_blank" href="https://en.wikipedia.org/wiki/Cron">Cron</a> spec. <br/> <a href="/doc/enable-backup.html">More details here</a>.</td>
+                                <td>
+                                    Optional, unless if we want to enable backup. <br/> It schedules a back-up regularly.
+                                    The cron format follows the standard
+                                    <a target="_blank" href="https://en.wikipedia.org/wiki/Cron">Cron</a> spec. <br/>
+                                    <a href="/doc/enable-backup.html">More details here</a>.
+                                </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;backup<br/>&nbsp;&nbsp;pvcName</td>
                                 <td>&nbsp;</td>
-                                <td>Optional, unless if we want to enable backup. <br/> The Persistence-Volume-Claim (PVC) defining where the back-up data will be stored. A volume backed by a PVC is mounted into the path defined by "spec.backup.volumeMount" (see below). <br/> <a href="/doc/enable-backup.html">More details here</a>.</td>
+                                <td>
+                                    Optional, unless if we want to enable backup. <br/> The Persistence-Volume-Claim (PVC)
+                                    defining where the back-up data will be stored. A volume backed by a PVC is mounted
+                                    into the path defined by "spec.backup.volumeMount" (see below). <br/>
+                                    <a href="/doc/enable-backup.html">More details here</a>.
+                                </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;backup<br/>&nbsp;&nbsp;volumeMount</td>
                                 <td>&nbsp;</td>
-                                <td>Optional, unless if we want to enable backup. <br/> The location where the backup is stored in the docker image. A volume is mounted on that path using the PVC name defined by "spec.database.pvcName". <br/> <a href="/doc/enable-backup.html">More details here</a>.</td>
+                                <td>
+                                    Optional, unless if we want to enable backup. <br/> The location where the backup is
+                                    stored in the docker image. A volume is mounted on that path using the PVC name defined
+                                    by "spec.database.pvcName". <br/> <a href="/doc/enable-backup.html">More details here</a>.
+                                </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;env<br/>&nbsp;&nbsp;name</td>
                                 <td>&nbsp;</td>
-                                <td><b>Required.</b> <br/> The password of the super user "postgres". This user is created by the official PostgreSql docker image.</td>
+                                <td>
+                                    <b>Required.</b> <br/> The password of the super user "postgres". This user is created
+                                    by the official PostgreSql docker image.
+                                </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;env<br/>&nbsp;&nbsp;name</td>
                                 <td>&nbsp;</td>
-                                <td><b>Required.</b> <br/> The password of the "replication" user which is used by PostgreSql to replicate data between Primary and Replicas servers.</td>
+                                <td>
+                                    <b>Required.</b> <br/> The password of the "replication" user which is used by PostgreSql
+                                    to replicate data between Primary and Replicas servers.
+                                </td>
                             </tr>
                         </table>
                     </p>
 
-                    <div class="publicationDetails"><time datetime="2021-04-10" pubdate="pubdate">10 April 2021</time></div>
+                    <div class="publicationDetails"><time datetime="2021-07-23" pubdate="pubdate">23 July 2021</time></div>
 
                 </article>
             </div>

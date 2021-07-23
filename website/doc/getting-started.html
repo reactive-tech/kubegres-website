@@ -13,7 +13,7 @@
 
                     <p>The installation needs to be done once. Run the following command in a Kubernetes cluster:</p>
                     <pre>
-kubectl apply -f https://raw.githubusercontent.com/reactive-tech/kubegres/v1.7/kubegres.yaml
+kubectl apply -f https://raw.githubusercontent.com/reactive-tech/kubegres/v1.8/kubegres.yaml
                     </pre>
 
                     <p>During the installation, "Kubegres" creates the namespace "kubegres-system" where it installs its
@@ -40,7 +40,24 @@ deployment.apps/kubegres-controller-manager             1/1
 kubectl logs pod/<b>kubegres-controller-manager</b>-999786dd6-74tmb -c manager -n kubegres-system -f
                     </pre>
 
-                    <h2>2) Create a Secret resource</h2>
+                    <h2>2) Check storage class</h2>
+                    <p>
+                        Kubegres requires a storage class in order to create PV (Persistent Volume) and PVC for each
+                        instance of PostgreSql. Please run the following command to check a storage class exist in
+                        the Kubernetes cluster:
+                    </p>
+                    <pre>
+kubectl get sc
+                    </pre>
+
+                    For example, using <a target="_blank" href="https://kind.sigs.k8s.io/">Kind</a> as a local
+                    Kubernetes cluster, the above command outputs:
+                    <pre>
+NAME                 PROVISIONER             RECLAIMPOLICY
+standard (default)   rancher.io/local-path   Delete
+                    </pre>
+
+                    <h2>3) Create a Secret resource</h2>
 
                     <p>Before creating a cluster of PostgreSql, we need to create a Secret resource in order to store
                         the passwords of a PostgreSql's super user and a replication user:</p>
@@ -72,7 +89,7 @@ kubectl apply -f my-postgres-secret.yaml
                         and "replicationUserPassword". The password values in the YAML are also for example purpose.
                     </p>
 
-                    <h2>3) Create a cluster of PostgreSql instances</h2>
+                    <h2>4) Create a cluster of PostgreSql instances</h2>
                     <p>To create a cluster of PostgreSql, we need to create a Kubegres resource. The Kubegres YAML below
                         contains the minimum required configurations to set-up:
                         <ul>
@@ -146,7 +163,7 @@ kubectl get pods -o wide -w
 kubectl get events
                     </pre>
 
-                    <h2>4) The created resources</h2>
+                    <h2>5) The created resources</h2>
 
                 <p>Kubegres operator will then create a cluster of PostgreSql pods as follows:</p>
                 <p style="text-align: center"><img src="/includes/img/3Replicas.svg" /> </p>
@@ -201,7 +218,7 @@ configmap/base-kubegres-config
                     client app to that PostgreSql cluster.
                 </p>
 
-                <h2>5) Connect client apps to PostgreSql</h2>
+                <h2>6) Connect client apps to PostgreSql</h2>
 
                  <p>
                      Based on the Kubegres YAML that we have created, a client app located inside the same Kubernetes
@@ -274,7 +291,7 @@ configmap/base-kubegres-config
                     You can read about how Kubegres manages <a href="replication-and-failover.html">replication and failover</a>.
                 </p>
 
-                <div class="publicationDetails"><time datetime="2021-04-10" pubdate="pubdate">10 April 2021</time></div>
+                <div class="publicationDetails"><time datetime="2021-07-23" pubdate="pubdate">23 July 2021</time></div>
 
                 </article>
             </div>
