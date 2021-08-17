@@ -52,6 +52,24 @@ spec:
       pvcName: my-backup-pvc
       volumeMount: /var/lib/backup
 
+   scheduler:
+      affinity:
+         podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+               - weight: 100
+                 podAffinityTerm:
+                    labelSelector:
+                       matchExpressions:
+                         - key: app
+                           operator: In
+                           values:
+                           - postgres-name
+                    topologyKey: "kubernetes.io/hostname"
+      tolerations:
+         - key: group
+           operator: Equal
+           value: critical
+
    env:
       - name: POSTGRES_PASSWORD
         valueFrom:
@@ -229,6 +247,26 @@ spec:
                                     Optional, unless if we want to enable backup. <br/> The location where the backup is
                                     stored in the docker image. A volume is mounted on that path using the PVC name defined
                                     by "spec.database.pvcName". <br/> <a href="/doc/enable-backup.html">More details here</a>.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;scheduler<br/>&nbsp;&nbsp;affinity</td>
+                                <td>&nbsp;</td>
+                                <td>
+                                    Optional.<br/> It allows setting custom Pod/Node affinity policy. Its type is the
+                                    same as the Kubernetes 'affinity' field in the Pod/StatefulSet YAML.
+                                    <br/> <a target="_blank" href="https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity">
+                                    More details here</a>.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;scheduler<br/>&nbsp;&nbsp;tolerations</td>
+                                <td>&nbsp;</td>
+                                <td>
+                                    Optional.<br/> It allows setting custom tolerations policy. Its type is the
+                                    same as the Kubernetes 'tolerations' field in the Pod/StatefulSet YAML.
+                                    <br/> <a target="_blank" href="https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/">
+                                    More details here</a>.
                                 </td>
                             </tr>
                             <tr>
