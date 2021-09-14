@@ -233,7 +233,7 @@ configmap/base-kubegres-config
 
                 <h3>Host</h3>
                 <p>
-                    In this example, Kubegres created 2 Kubernetes clusterIP services using the name defined in YAML
+                    In this example, Kubegres created 2 Kubernetes Headless services (of default type ClusterIP) using the name defined in YAML
                     (e.g. "mypostgres"):
                     <ul>
                         <li>a Kubernetes service "mypostgres" allowing to access to the Primary PostgreSql instances</li>
@@ -247,6 +247,10 @@ configmap/base-kubegres-config
                 </p>
                 <p>
                     This approach allows the client apps to access to the PostgreSql instances without any knowledge of IP addresses.
+                </p>
+                <p>
+                    Note that because Kubegres creates Headless services and configure them with selectors,
+                    then no cluster IP addresses are created and the DNS resolves directly to the IPs of the Postgres Pods.
                 </p>
 
                 <p>Please see the following diagram showing the 2 services that are created by Kubegres based on the YAML above:</p>
