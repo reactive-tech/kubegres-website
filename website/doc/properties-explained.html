@@ -52,6 +52,14 @@ spec:
       pvcName: my-backup-pvc
       volumeMount: /var/lib/backup
 
+   resources:
+      limits:
+         memory: "4Gi"
+         cpu: "1"
+      requests:
+         memory: "2Gi"
+         cpu: "1"
+
    scheduler:
       affinity:
          podAntiAffinity:
@@ -250,11 +258,27 @@ spec:
                                 </td>
                             </tr>
                             <tr>
+                                <td>spec<br/>&nbsp;resources</td>
+                                <td>&nbsp;</td>
+                                <td>
+                                    Optional.<br/> It allows to define the resources requests/limits of CPU and Memory for the Postgres Pods.
+                                    Its type is of the Kubernetes type
+                                    <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#resourcerequirements-v1-core">
+                                        ResourceRequirements
+                                    </a>.
+                                    <br/> <a target="_blank" href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">
+                                    More details here</a>.
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>spec<br/>&nbsp;scheduler<br/>&nbsp;&nbsp;affinity</td>
                                 <td>&nbsp;</td>
                                 <td>
-                                    Optional.<br/> It allows setting custom Pod/Node affinity policy. Its type is the
-                                    same as the Kubernetes 'affinity' field in the Pod/StatefulSet YAML.
+                                    Optional.<br/> It allows setting custom Pod/Node affinity policy.
+                                    Its type is of the Kubernetes type
+                                    <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#affinity-v1-core">
+                                        Affinity
+                                    </a>.
                                     <br/> <a target="_blank" href="https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity">
                                     More details here</a>.
                                 </td>
@@ -263,8 +287,11 @@ spec:
                                 <td>spec<br/>&nbsp;scheduler<br/>&nbsp;&nbsp;tolerations</td>
                                 <td>&nbsp;</td>
                                 <td>
-                                    Optional.<br/> It allows setting custom tolerations policy. Its type is the
-                                    same as the Kubernetes 'tolerations' field in the Pod/StatefulSet YAML.
+                                    Optional.<br/> It allows setting custom tolerations policy.
+                                    Its type is an array of the Kubernetes type
+                                    <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#toleration-v1-core">
+                                         Toleration
+                                    </a>.
                                     <br/> <a target="_blank" href="https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/">
                                     More details here</a>.
                                 </td>
