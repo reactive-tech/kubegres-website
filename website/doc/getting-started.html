@@ -138,7 +138,15 @@ spec:
 
                     </pre>
                     <p>
-                        Note: the YAML above contains the minimum required configurations to deploy a cluster of PostgreSql.
+                        In the YAML above, under the field "spec.database" we only specified the field "size".
+                        But you can also specify the fields "storageClassName" and "volumeMount". There are more details
+                        about those fields <a href="/doc/properties-explained.html">in this page.</a>
+                        <br>If you do not specify the field "storageClassName", Kubegres finds the default storage class
+                        of the Kubernetes cluster and assigns it. But you can also assign a value for that field manually.
+                        Once the storageClass is assigned, Kubernetes automatically provisions a PV and a PVC for each Postgres Pod.
+                    </p>
+                    <p>
+                        The YAML above contains the minimum required configurations to deploy a cluster of PostgreSql.
                         There are more configuration options available, such as the possibility to add annotations,
                         set the name of a storageClass, specify a private repo in order to retrieve the container's image from it,
                         enable backup, ...
@@ -170,7 +178,7 @@ kubectl get events
 
                 <p>Let's check the created resources:</p>
                 <pre>
-kubectl get pod,statefulset,svc,configmap -o wide
+kubectl get pod,statefulset,svc,configmap,pv,pvc -o wide
                 </pre>
 
                 <p>Example of output:</p>
@@ -191,6 +199,16 @@ service/mypostgres-replica   ClusterIP
 
 NAME
 configmap/base-kubegres-config
+
+NAME                          CAPACITY
+persistentvolume/pvc-838...   200Mi
+persistentvolume/pvc-da6...   200Mi
+persistentvolume/pvc-e25...   200Mi
+
+NAME                                               CAPACITY
+persistentvolumeclaim/postgres-db-mypostgres-1-0   200Mi
+persistentvolumeclaim/postgres-db-mypostgres-2-0   200Mi
+persistentvolumeclaim/postgres-db-mypostgres-3-0   200Mi
                 </pre>
 
                 <p>
@@ -203,10 +221,14 @@ configmap/base-kubegres-config
                     client apps to access respectively to the Primary and Replica instances. There are more details about
                     them in the next section below.
                 </p>
-                <p>Kubegres created a base ConfigMap named "
+                <p>
+                    Kubegres created a base ConfigMap named "
                     <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/controllers/spec/template/yaml/BaseConfigMapTemplate.yaml">
                         base-kubegres-config</a>". It does that in each namespace where Kubegres resources are running.
                     For more details about base ConfigMap, please see the page <a href="/doc/override-default-configs.html">Override the default configurations</a>.
+                </p>
+                    And finally, Kubegres provisioned one PV and one PVC for each Postgres Pod using the StorageClass.
+                <p>
                 </p>
                 <p>
                     Kubegres uses predefined templates to create Kubernetes resources. Those templates are available in

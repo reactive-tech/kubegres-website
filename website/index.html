@@ -5,7 +5,7 @@
             <div class="contentsBoxBody">
                 <article>
                     <p>
-                        <b>Kubegres</b> is a Kubernetes operator allowing to deploy a cluster of PostgreSql instances with data
+                        <b>Kubegres</b> is a Kubernetes operator allowing to deploy one or many clusters of PostgreSql instances with data
                         replication and failover enabled out-of-the box. It brings simplicity when using PostgreSql considering how
                         complex managing stateful-set's life-cycle and data replication could be with Kubernetes.
                     </p>
@@ -18,6 +18,11 @@
 
                     <p>
                         <ul>
+                            <li>
+                                It can manage one or many clusters of Postgres instances. Each cluster of Postgres instances
+                                is created using a YAML of "kind: Kubegres". Each cluster is self-contained and is identified
+                                by its unique name and namespace as defined in its YAML of "kind: Kubegres".
+                            </li>
                             <li>
                                 It creates a cluster of PostgreSql servers with
                                 <a target="_blank" href="https://wiki.postgresql.org/wiki/Streaming_Replication">Streaming Replication</a>
