@@ -206,3 +206,10 @@ div.publicationDetails {
     padding: 10px;
     text-align: right;
 }
+
+
+/* Property explained sub-tables */
+table.propExpSubTable, th.propExpSubTable, td.propExpSubTable {
+    border: none;
+    padding: 3px;
+}

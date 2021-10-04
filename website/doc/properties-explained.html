@@ -20,10 +20,10 @@
                         <pre>
 apiVersion: kubegres.reactive-tech.io/v1
 kind: Kubegres
-metadata:
+<a href="/doc/properties-explained.html#spec_metadata">metadata</a>:
   name: mypostgres
   namespace: default
-  <a href="/doc/properties-explained.html#spec_annotations">annotations</a>:
+  annotations:
     imageregistry: "https://hub.docker.com/"
     nginx.ingress.kubernetes.io/affinity: cookie
 
@@ -78,6 +78,28 @@ spec:
            operator: Equal
            value: critical
 
+   <a href="/doc/properties-explained.html#spec_volume">volume</a>:
+      volumes:
+         - name: dshm
+           emptyDir:
+             medium: Memory
+             sizeLimit: "600Mi"
+
+      volumeMounts:
+         - mountPath: /dev/shm
+           name: dshm
+         - mountPath: /dev/anything
+           name: anyMount
+
+      volumeClaimTemplates:
+         name: anyMount
+         spec:
+            accessModes: [ "ReadWriteOnce" ]
+            storageClassName: standard
+            resources:
+              requests:
+              storage: 1Gi
+
    <a href="/doc/properties-explained.html#spec_env">env</a>:
       - name: POSTGRES_PASSWORD
         valueFrom:
@@ -101,20 +123,46 @@ spec:
                                 <th>Meaning</th>
                             </tr>
                             <tr>
+                                <td colspan="2">
+                                    <a id="spec_metadata"><b>metadata</b></a>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>name</td>
                                 <td>
-                                    <b>Required.</b>
-                                    <br/> The unique name of a Kubegres resource in Kubernetes.
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">Yes</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">string</td>
+                                        </tr>
+                                    </table>
+                                    <br/>The unique name of a Kubegres resource in Kubernetes.
                                     It defines the unique name of a PostgreSql cluster, which is "mypostgres" for this example.
-                                    <br/>Kubegres operator allows creating as many clusters as a given infrastructure can handle
-                                    as long as each cluster's name is unique.
+                                    <br/>Kubegres operator allows creating as many clusters of Postgres as a given
+                                    infrastructure can handle as long as each cluster's name is unique.
                                 </td>
                             </tr>
                             <tr>
                                 <td>namespace</td>
                                 <td>
-                                    Optional.
-                                    <br/>Default value: "default".
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Default value</u>:</td>
+                                            <td class="propExpSubTable">default</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">string</td>
+                                        </tr>
+                                    </table>
                                     <br/>The namespace where the Kubegres resource will be created and
                                     a PostgreSql cluster will be deployed.
                                 </td>
@@ -122,195 +170,515 @@ spec:
                             <tr>
                                 <td>annotations</td>
                                 <td>
-                                    <a id="spec_annotations">Optional.</a>
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">map[string]string</td>
+                                        </tr>
+                                    </table>
                                     <br/>The annotations to pass to the created Pods and StatefulSets.
                                     We can set as many annotations as needed.
                                     <br/>As an example, in the YAML above we set the annotations:
                                     <br/>- imageregistry: "https://hub.docker.com/
-                                    <br/>- nginx.ingress.kubernetes.io/affinity: cookie.
+                                    <br/>- nginx.ingress.kubernetes.io/affinity: cookie
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="2">
+                                    <a id="spec_replicas"><b>spec<br/>&nbsp;replicas</b></a>
                                 </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;replicas</td>
                                 <td>
-                                    <b><a id="spec_replicas">Required.</a></b>
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">Yes</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">int32</td>
+                                        </tr>
+                                    </table>
                                     <br/> It defines the number of PostgreSql instances (or Pods) to deploy in a cluster.<br/>
                                     For example, if set to '3', Kubegres deploys 1 Primary Pod and 2 Replica Pods.
                                     If set to '1', it will only create 1 Primary Pod without creating any Replica Pods.
                                 </td>
                             </tr>
+
+                            <tr>
+                                <td colspan="2">
+                                    <a id="spec_image"><b>spec<br/>&nbsp;image</b></a>
+                                </td>
+                            </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;image</td>
                                 <td>
-                                    <b><a id="spec_image">Required.</a></b>
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">Yes</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">string</td>
+                                        </tr>
+                                    </table>
                                     <br/> The name of the Postgres Docker image.
-                                    Kubegres expects either a
-                                    <a target="_blank" href="https://hub.docker.com/_/postgres">Postgres Docker official image</a> or any compatible image.
-                                    <br/> Consequently, Kubegres operator does not ship with a custom Docker image with obscure set of libraries.
-                                    <br/> More details about the Postgres docker image:
-                                    <a target="_blank" href="https://hub.docker.com/_/postgres">Docker Hub</a>.
+                                    Kubegres operator does not ship with a custom Docker image. It expects either a
+                                    <a target="_blank" href="https://hub.docker.com/_/postgres">Postgres Docker official
+                                        image</a> or any compatible image.
+                                    <br/><br/> More details about
+                                    <a target="_blank" href="https://hub.docker.com/_/postgres">Postgres Docker image</a>.
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="2">
+                                    <a id="spec_imagePullSecrets"><b>spec<br/>&nbsp;imagePullSecrets</b></a>
                                 </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;imagePullSecrets</td>
                                 <td>
-                                    <a id="spec_imagePullSecrets">Optional.</a>
-                                    <br/> It allows to pull custom Postgres images from a private repo.
-                                    The images have to be compatible with a
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">Array of <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#localobjectreference-v1-core">LocalObjectReference</a></td>
+                                        </tr>
+                                    </table>
+                                    <br/>It allows to pull custom Postgres images from a private repo. The images have to
+                                    be compatible with a
                                     <a target="_blank" href="https://hub.docker.com/_/postgres">Postgres Docker official image</a>.
-                                    <br/>
-                                    More details about the
-                                    <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#podspec-v1-core">
-                                        type
-                                    </a>
-                                    of this field (search for "imagePullSecrets" in that page's table).
+                                    <br/><br/>More details about
+                                    <a target="_blank" href="https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod">ImagePullSecrets</a>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="2">
+                                    <a id="spec_port"><b>spec<br/>&nbsp;port</b></a>
                                 </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;port</td>
                                 <td>
-                                    <a id="spec_port">Optional.</a>
-                                    <br/>Default value: "5432".
-                                    <br/> The port exposed by the Postgres docker container to access to
-                                    the PostgreSql server.
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Default value</u>:</td>
+                                            <td class="propExpSubTable">5432</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">int32</td>
+                                        </tr>
+                                    </table>
+                                    <br/>The port exposed by the Postgres docker container.
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="2">
+                                    <a id="spec_database"><b>spec<br/>&nbsp;database</b></a>
                                 </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;database<br/>&nbsp;&nbsp;size</td>
                                 <td>
-                                    <b><a id="spec_database">Required.</a></b>
-                                    <br/> The size of each Postgres Pod's database in a cluster.
-                                    We use "Mi" for Megabyte and "Gi" for Gigabyte.
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">Yes</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">string</td>
+                                        </tr>
+                                    </table>
+                                    <br/>The size of each Postgres Pod's database in a cluster. We use "Mi" for Megabyte
+                                    and "Gi" for Gigabyte.
                                 </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;database<br/>&nbsp;&nbsp;storageClassName</td>
                                 <td>
-                                    Optional.
-                                    <br/>Default value: It uses the name of the default Storage-Class in the Kubernetes cluster.
-                                    <br/> It allows setting the Storage-Class' name which will be used to store the PostgreSql database.
-                                    <br/> If it is not set, Kubegres operator uses the default Storage-Class available in a
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Default value</u>:</td>
+                                            <td class="propExpSubTable">The name of the default Storage-Class in the Kubernetes cluster</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">string</td>
+                                        </tr>
+                                    </table>
+                                    <br/>It allows setting the Storage-Class' name which will be used to store the PostgreSql database.
+                                    <br/>If it is not set, Kubegres operator uses the default Storage-Class available in a
                                     Kubernetes cluster. <br/> Once the Storage-Class is assigned, Kubernetes automatically
                                     provisions a PV and a PVC for each Postgres Pod using the Storage-Class.
                                 </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;database<br/>&nbsp;&nbsp;volumeMount</td>
-                                <td>Optional.
-                                    <br/>Default value: "/var/lib/postgresql/data".
-                                    <br/> It defines the path in the Postgres container where the database folder 'pgdata' is mounted.
+                                <td>
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Default value</u>:</td>
+                                            <td class="propExpSubTable">/var/lib/postgresql/data</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">string</td>
+                                        </tr>
+                                    </table>
+                                    <br/>It defines the path in the Postgres container where the database folder 'pgdata' is mounted.
                                     The mount will be physically located in the volume (PVC) backed by a Storage-Class
                                     (as defined in the above field 'database.storageClassName').
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="2">
+                                    <a id="spec_customConfig"><b>spec<br/>&nbsp;customConfig</b></a>
                                 </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;customConfig</td>
                                 <td>
-                                    <a id="spec_customConfig">Optional.</a>
-                                    <br/>Default value: "base-kubepostgres-config".
-                                    <br/> It allows setting the name of a ConfigMap which contains the configs
-                                    files and their contents required by Kubegres. <br/>
-                                    <a href="/doc/override-default-configs.html">More details here</a>.
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Default value</u>:</td>
+                                            <td class="propExpSubTable">base-kubepostgres-config</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">string</td>
+                                        </tr>
+                                    </table>
+                                    <br/>It allows setting the name of a ConfigMap which contains the configs
+                                    files and their contents required by Kubegres.
+                                    <br/><br/>More details about <a href="/doc/override-default-configs.html">how to override the default config</a>.
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="2">
+                                    <a id="spec_failover"><b>spec<br/>&nbsp;failover</b></a>
                                 </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;failover<br/>&nbsp;&nbsp;isDisabled</td>
                                 <td>
-                                    <a id="spec_failover">Optional.</a>
-                                    <br/>Default value: "false".
-                                    <br/> It disables the automatic failover feature for a cluster of PostgreSql.
-                                    <br/> If it is set to true and if a Primary or Replica PostgreSql instance is not available
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Default value</u>:</td>
+                                            <td class="propExpSubTable">false</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">bool</td>
+                                        </tr>
+                                    </table>
+                                    <br/>It disables the automatic failover feature for a cluster of PostgreSql.
+                                    <br/>If it is set to true and if a Primary or Replica PostgreSql instance is not available
                                     then Kubegres will not attempt to failover and fix the cluster. <br/>
                                     This option can be useful when manually maintaining a node (e.g. restarting it, patching it, ...)
-                                    and we do not want Kubegres to automatically failover a Primary or Replica instances during
-                                    that maintenance.
+                                    and when we do not want Kubegres to automatically failover a Primary or Replica instances during
+                                    a maintenance.
                                 </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;failover<br/>&nbsp;&nbsp;promotePod</td>
                                 <td>
-                                    Optional.
-                                    <br/> It allows to manually promote a Replica PostgreSql Pod as a Primary Pod.
-                                    <br/> It expects the name of a Replica Pod that we would like to promote as a Primary.
-                                    <br/> This option is independent from the value of the above field "failover.isDisabled".
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">string</td>
+                                        </tr>
+                                    </table>
+                                    <br/>It allows to manually promote a Replica PostgreSql Pod as a Primary Pod.
+                                    <br/>It expects the name of a Replica Pod that we would like to promote as a Primary.
+                                    <br/>This option is independent of the value of the above field "failover.isDisabled".
                                     It is always possible to manually promote a Pod, whether "failover.isDisabled" is set
                                     to true or to false.
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="2">
+                                    <a id="spec_backup"><b>spec<br/>&nbsp;backup</b></a>
                                 </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;backup<br/>&nbsp;&nbsp;schedule</td>
                                 <td>
-                                    <a id="spec_backup">Optional</a>.
-                                    <br/> It schedules a back-up regularly. The cron format follows the standard
-                                    <a target="_blank" href="https://en.wikipedia.org/wiki/Cron">Cron</a> spec. <br/>
-                                    <a href="/doc/enable-backup.html">More details here</a>.
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">string</td>
+                                        </tr>
+                                    </table>
+                                    <br/>It expects a
+                                    <a target="_blank" href="https://en.wikipedia.org/wiki/Cron">Cron format</a>
+                                    defining how often a back-up should happen.
+                                    <br/><br/>More details about <a href="/doc/enable-backup.html"> how to enable backup</a>.
                                 </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;backup<br/>&nbsp;&nbsp;pvcName</td>
                                 <td>
-                                    Optional.<br/> The Persistence-Volume-Claim (PVC)
-                                    defining where the back-up data will be stored. A volume backed by a PVC is mounted
-                                    into the path defined by "spec.backup.volumeMount" (see below). <br/>
-                                    <a href="/doc/enable-backup.html">More details here</a>.
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">string</td>
+                                        </tr>
+                                    </table>
+                                    <br/>The Persistence-Volume-Claim (PVC) defining where the back-up data will be stored.
+                                    A volume backed by a PVC is mounted on the path defined by "spec.backup.volumeMount" (see the next field).
+                                    <br/><br/>More details about <a href="/doc/enable-backup.html"> how to enable backup</a>.
                                 </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;backup<br/>&nbsp;&nbsp;volumeMount</td>
                                 <td>
-                                    Optional.<br/> The location where the backup is
-                                    stored in the docker image. A volume is mounted on that path using the PVC name defined
-                                    by "spec.database.pvcName". <br/> <a href="/doc/enable-backup.html">More details here</a>.
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">string</td>
+                                        </tr>
+                                    </table>
+                                    <br/>The location where the backup is stored in the docker image. A volume is mounted on
+                                    that path using the PVC name defined by "spec.database.pvcName" (see the previous field).
+                                    <br/><br/>More details about <a href="/doc/enable-backup.html"> how to enable backup</a>.
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="2">
+                                    <a id="spec_resources"><b>spec<br/>&nbsp;resources</b></a>
                                 </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;resources</td>
                                 <td>
-                                    <a id="spec_resources">Optional.</a>
-                                    <br/> It allows to define the resources requests/limits of CPU and Memory for the Postgres Pods.
-                                    Its type is of the Kubernetes type
-                                    <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#resourcerequirements-v1-core">
-                                        ResourceRequirements</a>.
-                                    <br/> <a target="_blank" href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">
-                                    More details here</a>.
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable"><a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#resourcerequirements-v1-core">ResourceRequirements</a></td>
+                                        </tr>
+                                    </table>
+                                    <br/>It allows to define the resources requests/limits of CPU and Memory for the Postgres Pods.
+                                    <br/><br/>More details about <a target="_blank" href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">
+                                    managing the resources for containers</a>.
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="2">
+                                    <a id="spec_scheduler"><b>spec<br/>&nbsp;scheduler</b></a>
                                 </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;scheduler<br/>&nbsp;&nbsp;affinity</td>
                                 <td>
-                                    <a id="spec_scheduler">Optional.</a>
-                                    <br/> It allows setting custom Pod/Node affinity policy. Its type is of the Kubernetes type
-                                    <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#affinity-v1-core">
-                                        Affinity</a>.
-                                    <br/> <a target="_blank" href="https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity">
-                                    More details here</a>.
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable"><a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#affinity-v1-core">Affinity</a></td>
+                                        </tr>
+                                    </table>
+                                    <br/> It allows setting custom Pod/Node affinity policy.
+                                    <br/><br/>More details about <a target="_blank" href="https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity">
+                                     affinity and anti-affinity</a>.
                                 </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;scheduler<br/>&nbsp;&nbsp;tolerations</td>
                                 <td>
-                                    Optional.<br/> It allows setting custom tolerations policy.
-                                    Its type is an array of the Kubernetes type
-                                    <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#toleration-v1-core">
-                                         Toleration</a>.
-                                    <br/> <a target="_blank" href="https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/">
-                                    More details here</a>.
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable"><a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#toleration-v1-core">Toleration</a></td>
+                                        </tr>
+                                    </table>
+                                    <br/> It allows setting custom tolerations policy.
+                                    <br/><br/>More details about <a target="_blank" href="https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/">
+                                     taints and tolerations</a>.
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="2">
+                                    <a id="spec_volume"><b>spec<br/>&nbsp;volume</b></a>
+                                </td>
+                            </tr>
+                            <tr>
+                               <td>spec<br/>&nbsp;volume<br/>&nbsp;&nbsp;volumes</td>
+                                <td>
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">Array of <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#volume-v1-core">Volume</a></td>
+                                        </tr>
+                                    </table>
+                                    <br/>It allows declaring one or many volumes which can be mounted in the Postgres container(s).
+                                    <br/><br/>More details about <a target="_blank" href="https://kubernetes.io/docs/concepts/storage/volumes/">
+                                    Volumes</a>.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;volume<br/>&nbsp;&nbsp;volumeMounts</td>
+                                <td>
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">Array of <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#volumemount-v1-core">VolumeMount</a></td>
+                                        </tr>
+                                    </table>
+                                    <br/>It allows mounting one or many volumes in the Postgres container(s).
+                                    <br/><br/>More details about <a target="_blank" href="https://kubernetes.io/docs/concepts/storage/volumes/">
+                                     VolumeMounts</a>.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;volume<br/>&nbsp;&nbsp;volumeClaimTemplates</td>
+                                <td>
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">Array of <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/api/v1/kubegres_types.go#L52">VolumeClaimTemplates</a></td>
+                                        </tr>
+                                    </table>
+                                    <br/>It allows to automatically provision one or many volumes  in the Postgres
+                                    container(s) using the storage class' provisioner.
+                                    <br/><br/>More details about <a target="_blank" href="https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/">
+                                    VolumeClaimTemplates in a StatefulSet</a>.
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="2">
+                                    <a id="spec_env"><b>spec<br/>&nbsp;env</b></a>
                                 </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;env<br/>&nbsp;&nbsp;name</td>
                                 <td>
-                                    <b><a id="spec_env">Required.</a></b>
-                                    <br/> The password of the super user "postgres". This user is created by
-                                    the official PostgreSql docker image.
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">Yes</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">string</td>
+                                        </tr>
+                                    </table>
+                                    <br/>The password of the super user "postgres". This user is created by the official
+                                    PostgreSql docker image.
                                 </td>
                             </tr>
                             <tr>
                                 <td>spec<br/>&nbsp;env<br/>&nbsp;&nbsp;name</td>
                                 <td>
-                                    <b>Required.</b>
-                                    <br/> The password of the "replication" user which is used by PostgreSql
-                                    to replicate data between Primary and Replicas servers.
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">Yes</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">string</td>
+                                        </tr>
+                                    </table>
+                                    <br/>The password of the "replication" user which is used by PostgreSql to replicate
+                                    data between Primary and Replicas servers.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;env<br/>&nbsp;&nbsp;...</td>
+                                <td>
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable">Array of <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#envvar-v1-core">EnvVar</a></td>
+                                        </tr>
+                                    </table>
+                                    <br/>You can add any custom environment variable(s) which will be set to the Pod(s).
                                 </td>
                             </tr>
                         </table>
