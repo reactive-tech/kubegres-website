@@ -4,12 +4,49 @@
             <div class="contentsBoxHeader">Enable back-up</div>
             <div class="contentsBoxBody">
                 <article>
-                    <p><b>Kubegres</b> allows to back-up the Primary PostgreSql database to a given volume in a scheduled way.</p>
                     <p>
-                        If back-up is enabled in Kubegres YAML, behind the scenes a Kubernetes <a target="_blank" href="https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/">Cronjob</a> resource is created which regularly executes a backup bash script.
-                        It is possible to override that bash script to have a better control of the backup process, as explained in the doc: <a href="/doc/override-default-configs.html">Override the default configurations</a>.
+                        <b>Kubegres</b> allows to back-up the Primary PostgreSql database to a given volume in a scheduled way.
                     </p>
-                    <p>To enable the backup option in a Postgres cluster, add the property "backup" to its Kubegres YAML, as in the example below:</p>
+                    <p>
+                        If the back-up feature is enabled in Kubegres YAML, behind the scenes a Kubernetes
+                        <a target="_blank" href="https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/">Cronjob</a>
+                        resource is created which regularly executes a backup bash script.
+                        It is possible to override that bash script to have a better control of the backup process,
+                        as explained in the doc: <a href="/doc/override-default-configs.html">Override the default configurations</a>.
+                    </p>
+
+                    <h2>Create a PVC</h2>
+                    <p>
+                        If you do not have a PVC to store the contents to back-up, you can follow the example below.
+                        <br/><br/>Create a file:
+                        <pre>
+vi my-backup-pvc.yaml
+                        </pre>
+                    Add the following contents:
+                    <pre>
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-backup-pvc
+  namespace: default
+spec:
+  storageClassName: "standard"
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Mi
+                        </pre>
+
+                        Apply the changes:
+                        <pre>
+kubectl apply -f my-backup-pvc.yaml
+                        </pre>
+                    </p>
+
+                    <h2>Enable the backup feature</h2>
+                    <p>Once the PVC is created, to enable the backup feature for a Postgres cluster, add the property "backup" to its Kubegres YAML,
+                        as in the example below:</p>
                     <pre>
 backup:
     schedule: "0 */1 * * *"
@@ -62,7 +99,38 @@ spec:
 
                     </pre>
 
-                    <div class="publicationDetails"><time datetime="2021-04-10" pubdate="pubdate">10 April 2021</time></div>
+                    <h2>Check the backup is working</h2>
+                    Once you applied the YAML changes above, you can monitor the CronJob as follows:
+                    <pre>
+$ kubectl get CronJob
+
+NAME                SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+backup-mypostgres   */1 * * * *   False     0        15s             14m
+                    </pre>
+
+                    Each time a backup job is running, Kubernetes will create a Pod in the same namespace as your
+                    cluster of Postgres. You can check the logs of those pods to see if a backup task run successfully.
+
+                    <br/><br/>Example of backup jobs:
+                    <pre>
+$ kubectl get pods
+
+NAME                               READY   STATUS      RESTARTS   AGE
+backup-mypostgres-27223836-25lzt   0/1     Completed   0          2m31s
+backup-mypostgres-27223837-bshqr   0/1     Completed   0          91s
+...
+                    </pre>
+
+                    Checking the logs of a backup job:
+                    <pre>
+$ kubectl logs backup-mypostgres-27223836-25lzt
+
+05/10/2021 10:36:00 - Starting DB backup of Kubegres resource mypostgres into file: /var/lib/backup/mypostgres-backup-05_10_2021_10_36_00.gz
+05/10/2021 10:36:00 - Running: pg_dumpall -h mypostgres-replica -U postgres -c | gzip > /var/lib/backup/mypostgres-backup-05_10_2021_10_36_00.gz
+05/10/2021 10:36:00 - DB backup completed for Kubegres resource mypostgres into file: /var/lib/backup/mypostgres-backup-05_10_2021_10_36_00.gz
+                    </pre>
+
+                    <div class="publicationDetails"><time datetime="2021-10-05" pubdate="pubdate">05 October 2021</time></div>
 
                 </article>
             </div>
