@@ -312,12 +312,36 @@ persistentvolumeclaim/postgres-db-mypostgres-3-0   200Mi
                     </ul>
                 </p>
 
+                <h2>7) Delete a cluster of Postgres</h2>
+                <p>
+                    A cluster of Postgres can be deleted with the command:
+                    <pre>
+kubeclt delete kubegres [unique name]
+                    </pre>
+                    For example:
+                    <pre>
+kubeclt delete kubegres mypostgres
+                    </pre>
+
+                    The above will delete all resources created for a cluster of Postgres identified by the name 'mypostgres'.
+                    It will delete resources such as Pods, Statefulsets, Services, ...
+                    The only resources that you have to remove manually are PV and PVC. There is one PV and one PVC created
+                    for each Pod. The reason why we don't to remove those resources is because they contain the database.
+                    In a future version of Kubegres it will be possible to set an option in the YAML so that they are
+                    automatically removed too.
+                </p>
+                <p>Note that the command above will not delete other clusters of Postgres created with Kubegres and
+                    it will not delete the controller/operator Kubegres.</p>
+
                 <h2>Next</h2>
+                <p>
+                    You can read about all properties that you can use in a YAML of "kind: Kubegres" in the page: <a href="properties-explained.html">All properties explained</a>.
+                </p>
                 <p>
                     You can read about how Kubegres manages <a href="replication-and-failover.html">replication and failover</a>.
                 </p>
 
-                <div class="publicationDetails"><time datetime="2021-07-23" pubdate="pubdate">23 July 2021</time></div>
+                <div class="publicationDetails"><time datetime="2021-10-05" pubdate="pubdate">05 October 2021</time></div>
 
                 </article>
             </div>
