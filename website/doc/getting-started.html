@@ -330,8 +330,14 @@ kubeclt delete kubegres mypostgres
                     In a future version of Kubegres it will be possible to set an option in the YAML so that they are
                     automatically removed too.
                 </p>
-                <p>Note that the command above will not delete other clusters of Postgres created with Kubegres and
-                    it will not delete the controller/operator Kubegres.</p>
+                <p>Note that the command above will not delete other clusters of Postgres created with Kubegres.
+                    You have to run the command above with the name of the Kubegres resource for each cluster of Postgres to delete.</p>
+
+                <p>The above command does not delete the Kubegres controller/operator from your cluster.
+                    If you would like to delete it, you can run:</p>
+                <pre>
+kubectl delete -f https://raw.githubusercontent.com/reactive-tech/kubegres/v1.11/kubegres.yaml
+                </pre>
 
                 <h2>Next</h2>
                 <p>
