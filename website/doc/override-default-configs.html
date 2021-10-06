@@ -167,8 +167,16 @@ data:
                     <h2>Override postgres.conf</h2>
                     <p>When overriding postgres.conf, there are 2 properties to be aware of:
                     <ul>
-                        <li>"listen_addresses": by default PostgreSql set it to "localhost". But Kubegres explicitly set it to "*". When defining your own postgres.conf, do not forget to set it to "*". Not setting it or using an alternative value could break Kubegres replication capability.</li>
-                        <li>"wal_level": You cannot set a value for this config because it is passed as an argument to the PostgreSql container. This restriction is part of the design.</ul>
+                        <li>
+                            "listen_addresses": by default PostgreSql set it to "localhost". But Kubegres explicitly set
+                            it to "*". When defining your own postgres.conf, do not forget to set it to "*". Not setting
+                            it or using an alternative value could break Kubegres replication capability.
+                        </li>
+                        <li>
+                            "wal_level": By default, PostgreSql set the property 'wal_level' to 'replica'. You can modify
+                            the value of 'wal_level' in 'postgres.conf'. Kubegres was tested with "wal_level = replica" and
+                            "wal_level = logical".
+                        </ul>
                     </ul>
                     <p>Please see below an example of an overridden "postgres.conf" in a custom ConfigMap:</p>
                     <pre>
