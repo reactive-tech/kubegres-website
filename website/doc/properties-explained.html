@@ -233,7 +233,7 @@ spec:
                                     <br/> The name of the Postgres Docker image.
                                     Kubegres operator does not ship with a custom Docker image. It expects either a
                                     <a target="_blank" href="https://hub.docker.com/_/postgres">Postgres Docker official
-                                        image</a> or any compatible image.
+                                        image</a> (version 12.4 or higher) or any compatible image.
                                     <br/><br/> More details about
                                     <a target="_blank" href="https://hub.docker.com/_/postgres">Postgres Docker image</a>.
                                 </td>
@@ -257,9 +257,9 @@ spec:
                                             <td class="propExpSubTable">Array of <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#localobjectreference-v1-core">LocalObjectReference</a></td>
                                         </tr>
                                     </table>
-                                    <br/>It allows to pull custom Postgres images from a private repo. The images have to
+                                    <br/>It allows pulling custom Postgres images from a private repo. The images have to
                                     be compatible with a
-                                    <a target="_blank" href="https://hub.docker.com/_/postgres">Postgres Docker official image</a>.
+                                    <a target="_blank" href="https://hub.docker.com/_/postgres">Postgres Docker official image</a> (version 12.4 or higher).
                                     <br/><br/>More details about
                                     <a target="_blank" href="https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod">ImagePullSecrets</a>
                                 </td>

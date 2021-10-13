@@ -95,7 +95,7 @@ kubectl apply -f my-postgres-secret.yaml
                         <ul>
                             <li>
                                 a cluster of PostgreSql pods with an official <a target="_blank" href="https://hub.docker.com/_/postgres">
-                                 PostgreSql Docker container</a>  version 13.2
+                                 PostgreSql Docker container</a> (version 12.4 or higher)
                             </li>
                             <li>the property "replica: 3" means, Kubegres will create 1 Primary PostgreSql pod and 2 Replica PostgreSql pods</li>
                             <li>the data will be replicated in real time from the Primary PostgreSql pod to the 2 Replica PostgreSql pods</li>
