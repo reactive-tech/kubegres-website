@@ -30,7 +30,7 @@ kind: Kubegres
 spec:
 
    <a href="/doc/properties-explained.html#spec_replicas">replicas</a>: 3
-   <a href="/doc/properties-explained.html#spec_image">image</a>: postgres:13.2
+   <a href="/doc/properties-explained.html#spec_image">image</a>: postgres:14
    <a href="/doc/properties-explained.html#spec_port">port</a>: 5432
 
    <a href="/doc/properties-explained.html#spec_imagePullSecrets">imagePullSecrets</a>:
@@ -51,6 +51,12 @@ spec:
       schedule: "* */1 * * *"
       pvcName: my-backup-pvc
       volumeMount: /var/lib/backup
+
+   <a href="/doc/properties-explained.html#security_context">securityContext</a>:
+      runAsNonRoot: true
+      runAsUser: 999
+      fsGroup: 999
+      ...
 
    <a href="/doc/properties-explained.html#spec_resources">resources</a>:
       limits:
@@ -496,6 +502,30 @@ spec:
                                     <br/>The location where the backup is stored in the docker image. A volume is mounted on
                                     that path using the PVC name defined by "spec.database.pvcName" (see the previous field).
                                     <br/><br/>More details about <a href="/doc/enable-backup.html"> how to enable backup</a>.
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="2">
+                                    <a id="security_context"><b>spec<br/>&nbsp;securityContext</b></a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;securityContext</td>
+                                <td>
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable"><a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#podsecuritycontext-v1-core">PodSecurityContext</a></td>
+                                        </tr>
+                                    </table>
+                                    <br/>A security context defines privilege and access control settings for a Pod or Container.
+                                    <br/><br/>More details about <a target="_blank" href="https://kubernetes.io/docs/tasks/configure-pod-container/security-context/">
+                                    Security Context</a>.
                                 </td>
                             </tr>
 
