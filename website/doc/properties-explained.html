@@ -106,6 +106,31 @@ spec:
               requests:
                 storage: 1Gi
 
+   <a href="/doc/properties-explained.html#spec_probe">probe</a>:
+      livenessProbe:
+         exec:
+            command:
+              - sh
+              - -c
+              - exec pg_isready -U postgres -h $POD_IP
+         failureThreshold: 10
+         initialDelaySeconds: 60
+         periodSeconds: 20
+         successThreshold: 1
+         timeoutSeconds: 15
+
+      readinessProbe:
+         exec:
+            command:
+              - sh
+              - -c
+              - exec pg_isready -U postgres -h $POD_IP
+         failureThreshold: 3
+         initialDelaySeconds: 5
+         periodSeconds: 5
+         successThreshold: 1
+         timeoutSeconds: 3
+
    <a href="/doc/properties-explained.html#spec_env">env</a>:
       - name: POSTGRES_PASSWORD
         valueFrom:
@@ -260,7 +285,7 @@ spec:
                                         </tr>
                                         <tr>
                                             <td class="propExpSubTable"><u>Type</u>:</td>
-                                            <td class="propExpSubTable">Array of <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#localobjectreference-v1-core">LocalObjectReference</a></td>
+                                            <td class="propExpSubTable">Array of <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#localobjectreference-v1-core">LocalObjectReference</a></td>
                                         </tr>
                                     </table>
                                     <br/>It allows pulling custom Postgres images from a private repo. The images have to
@@ -520,7 +545,7 @@ spec:
                                         </tr>
                                         <tr>
                                             <td class="propExpSubTable"><u>Type</u>:</td>
-                                            <td class="propExpSubTable"><a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#podsecuritycontext-v1-core">PodSecurityContext</a></td>
+                                            <td class="propExpSubTable"><a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#podsecuritycontext-v1-core">PodSecurityContext</a></td>
                                         </tr>
                                     </table>
                                     <br/>A security context defines privilege and access control settings for a Pod or Container.
@@ -544,7 +569,7 @@ spec:
                                         </tr>
                                         <tr>
                                             <td class="propExpSubTable"><u>Type</u>:</td>
-                                            <td class="propExpSubTable"><a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#resourcerequirements-v1-core">ResourceRequirements</a></td>
+                                            <td class="propExpSubTable"><a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#resourcerequirements-v1-core">ResourceRequirements</a></td>
                                         </tr>
                                     </table>
                                     <br/>It allows to define the resources requests/limits of CPU and Memory for the Postgres Pods.
@@ -568,7 +593,7 @@ spec:
                                         </tr>
                                         <tr>
                                             <td class="propExpSubTable"><u>Type</u>:</td>
-                                            <td class="propExpSubTable"><a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#affinity-v1-core">Affinity</a></td>
+                                            <td class="propExpSubTable"><a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#affinity-v1-core">Affinity</a></td>
                                         </tr>
                                     </table>
                                     <br/> It allows setting custom Pod/Node affinity policy.
@@ -586,7 +611,7 @@ spec:
                                         </tr>
                                         <tr>
                                             <td class="propExpSubTable"><u>Type</u>:</td>
-                                            <td class="propExpSubTable"><a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#toleration-v1-core">Toleration</a></td>
+                                            <td class="propExpSubTable"><a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#toleration-v1-core">Toleration</a></td>
                                         </tr>
                                     </table>
                                     <br/> It allows setting custom tolerations policy.
@@ -610,7 +635,7 @@ spec:
                                         </tr>
                                         <tr>
                                             <td class="propExpSubTable"><u>Type</u>:</td>
-                                            <td class="propExpSubTable">Array of <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#volume-v1-core">Volume</a></td>
+                                            <td class="propExpSubTable">Array of <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#volume-v1-core">Volume</a></td>
                                         </tr>
                                     </table>
                                     <br/>It allows declaring one or many volumes which can be mounted in the Postgres container(s).
@@ -628,7 +653,7 @@ spec:
                                         </tr>
                                         <tr>
                                             <td class="propExpSubTable"><u>Type</u>:</td>
-                                            <td class="propExpSubTable">Array of <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#volumemount-v1-core">VolumeMount</a></td>
+                                            <td class="propExpSubTable">Array of <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#volumemount-v1-core">VolumeMount</a></td>
                                         </tr>
                                     </table>
                                     <br/>It allows mounting one or many volumes in the Postgres container(s).
@@ -653,6 +678,48 @@ spec:
                                     container(s) using the storage class' provisioner.
                                     <br/><br/>More details about <a target="_blank" href="https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/">
                                     VolumeClaimTemplates in a StatefulSet</a>.
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="2">
+                                    <a id="spec_probe"><b>spec<br/>&nbsp;probe</b></a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;probe<br/>&nbsp;&nbsp;livenessProbe</td>
+                                <td>
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable"><a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#probe-v1-core">Probe</a></td>
+                                        </tr>
+                                    </table>
+                                    <br/>Kubernetes uses liveness probes to know when to restart a container.
+                                    <br/><br/>More details about <a target="_blank" href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/">
+                                    LivenessProbe</a>.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>spec<br/>&nbsp;probe<br/>&nbsp;&nbsp;readinessProbe</td>
+                                <td>
+                                    <table class="propExpSubTable">
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Is required</u>:</td>
+                                            <td class="propExpSubTable">No</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="propExpSubTable"><u>Type</u>:</td>
+                                            <td class="propExpSubTable"><a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#probe-v1-core">Probe</a></td>
+                                        </tr>
+                                    </table>
+                                    <br/>Kubernetes uses readiness probes to know when a container is ready to start accepting traffic.
+                                    <br/><br/>More details about <a target="_blank" href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/">
+                                    ReadinessProbe</a>.
                                 </td>
                             </tr>
 
@@ -705,7 +772,7 @@ spec:
                                         </tr>
                                         <tr>
                                             <td class="propExpSubTable"><u>Type</u>:</td>
-                                            <td class="propExpSubTable">Array of <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#envvar-v1-core">EnvVar</a></td>
+                                            <td class="propExpSubTable">Array of <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#envvar-v1-core">EnvVar</a></td>
                                         </tr>
                                     </table>
                                     <br/>You can add any custom environment variable(s) which will be set to the Pod(s).
