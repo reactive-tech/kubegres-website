@@ -1,4 +1,4 @@
 sourceDir: website
-outputDir: /usr/share/dev-output/static-websites/kubegres-website/image
+outputDir: /home/alex/cluster/build/static-websites/kubegres-website/image
 patternFilesToExclude: "gigo.yaml deploy.sh .gitignore README.md"
 patternDirsToExclude: "docker nginx .idea .git"
