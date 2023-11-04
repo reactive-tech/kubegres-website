@@ -116,9 +116,10 @@ data:
     echo "$dt - Running: psql -v ON_ERROR_STOP=1 --username $POSTGRES_USER --dbname $POSTGRES_DB ...";
 
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
-    CREATE DATABASE $customDatabaseName;
     CREATE USER $customUserName WITH PASSWORD '$POSTGRES_MY_DB_PASSWORD';
-    GRANT ALL PRIVILEGES ON DATABASE "$customDatabaseName" to $customUserName;
+    CREATE DATABASE $customDatabaseName;
+    \connect $customDatabaseName;
+    GRANT ALL ON SCHEMA public TO $customUserName;
     EOSQL
 
     echo "$dt - Init script is completed";
