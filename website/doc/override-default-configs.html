@@ -9,7 +9,7 @@
                         <a target="_blank" href="https://kubernetes.io/docs/concepts/configuration/configmap/">
                             ConfigMap</a>
                         resource with
-                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/controllers/spec/template/yaml/BaseConfigMapTemplate.yaml">
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/internal/controller/spec/template/yaml/BaseConfigMapTemplate.yaml">
                             this contents</a>.
                         That base ConfigMap contains the default configs for all Kubegres resource(s) in that namespace.
                         It defines default contents for "postgres.conf", "pg_hba.conf" and a backup logic in "backup_database.sh".
@@ -33,7 +33,7 @@
 
                     <h1>How to override the default configurations for all running Kubegres resources?</h1>
                     <p>As mentioned above, Kubegres automatically creates a base ConfigMap named
-                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/controllers/spec/template/yaml/BaseConfigMapTemplate.yaml">
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/internal/controller/spec/template/yaml/BaseConfigMapTemplate.yaml">
                             base-kubegres-config</a> in each namespace where Kubegres resources are running. </p>
                     <p>
                         If you would like to change that base ConfigMap, you can do so by using the tool "kubectl" and
@@ -60,7 +60,7 @@ metadata:
 spec:
 
    replicas: 3
-   image: postgres:14.1
+   image: postgres:16.0
    port: 5432
 
    database:
@@ -256,7 +256,7 @@ metadata:
 spec:
 
    replicas: 3
-   image: postgres:14.1
+   image: postgres:16.0
 ...
 <b>
    failover:
@@ -292,7 +292,7 @@ metadata:
 spec:
 
    replicas: 3
-   image: postgres:14.1
+   image: postgres:16.0
 ...
 <b>
    failover:

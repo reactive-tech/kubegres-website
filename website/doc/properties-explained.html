@@ -6,12 +6,12 @@
                 <article>
                     <p>
                         The "Kubegres" API types are available in
-                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/api/v1/kubegres_types.go#L51">
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/api/v1/kubegres_types.go">
                             GitHub</a>.
                     </p>
                     <p>
                         Kubegres uses predefined templates to create Kubernetes resources. Those templates are available in
-                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/tree/main/controllers/spec/template/yaml">
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/tree/main/internal/controller/spec/template/yaml">
                             GitHub</a>.
                     </p>
                     <p>
@@ -30,7 +30,7 @@ kind: Kubegres
 spec:
 
    <a href="/doc/properties-explained.html#spec_replicas">replicas</a>: 3
-   <a href="/doc/properties-explained.html#spec_image">image</a>: postgres:14.1
+   <a href="/doc/properties-explained.html#spec_image">image</a>: postgres:16.0
    <a href="/doc/properties-explained.html#spec_port">port</a>: 5432
 
    <a href="/doc/properties-explained.html#spec_imagePullSecrets">imagePullSecrets</a>:
@@ -671,7 +671,7 @@ spec:
                                         </tr>
                                         <tr>
                                             <td class="propExpSubTable"><u>Type</u>:</td>
-                                            <td class="propExpSubTable">Array of <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/api/v1/kubegres_types.go#L52">VolumeClaimTemplates</a></td>
+                                            <td class="propExpSubTable">Array of <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/api/v1/kubegres_types.go#L48">VolumeClaimTemplates</a></td>
                                         </tr>
                                     </table>
                                     <br/>It allows to automatically provision one or many volumes  in the Postgres

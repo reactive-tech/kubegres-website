@@ -85,18 +85,18 @@ gh repo clone reactive-tech/kubegres
                             </li>
                             <li>
                                 the templates used to create Kubernetes resources (e.g. Services, StatefulSets, ...) are
-                                in the folder <a target="_blank" href="https://github.com/reactive-tech/kubegres/tree/main/controllers/spec/template/yaml">
+                                in the folder <a target="_blank" href="https://github.com/reactive-tech/kubegres/tree/main/internal/controller/spec/template/yaml">
                                 controllers/spec/template/yaml/</a>
                             </li>
                             <li>
                                 the controller managing the states of the PostgreSql cluster is in
-                                <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/controllers/kubegres_controller.go">
+                                <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/internal/controller/kubegres_controller.go">
                                 controllers/kubegres_controller.go</a>
                             </li>
                             <li>
                                 the acceptance tests are in the folder
-                                <a target="_blank" href="https://github.com/reactive-tech/kubegres/tree/main/test">test/</a>.
-                                The file <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/test/suite_test.go">
+                                <a target="_blank" href="https://github.com/reactive-tech/kubegres/tree/main/internal/test">test/</a>.
+                                The file <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/internal/test/suite_test.go">
                                 test/suite_test.go</a> is used to run all acceptance tests. Note it takes about 1h to run them all.
                             </li>
                         </ul>
@@ -159,14 +159,14 @@ BackUp states.  {"IsCronJobDeployed": false, "IsPvcDeployed": false, "CronJobLas
                     <p>
                         If your changes are not covered by the existing acceptance tests, please update the existing tests or
                         add a new test in the folder
-                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/tree/main/test">test/</a>
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/tree/main/internal/test">test/</a>
                     </p>
 
                     <h2>Run the acceptance tests</h2>
 
                     <p>
                         Before running the tests, make sure the IP address set to the constant "DbHost", located in the file
-                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/test/resourceConfigs/ConfigForTest.go">
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/internal/test/resourceConfigs/ConfigForTest.go">
                             ConfigForTest.go</a>, matches with the address of any of the nodes in your local Kubernetes cluster:
                     </p>
                     <pre>
@@ -254,7 +254,7 @@ make deploy IMG=reactivetechio/kubegres:1.4
                     </p>
                     <p>
                        Modify the page
-                        <a target="_blank" href="https://github.com/reactive-tech/kubegres-website/blob/main/doc/getting-started.html">Getting started</a>
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres-website/blob/main/website/doc/getting-started.html">Getting started</a>
                         by updating the command which allows installing Kubegres with the new version, as follows:
                     </p>
                     <pre>
@@ -262,7 +262,7 @@ kubectl apply -f https://raw.githubusercontent.com/reactive-tech/kubegres/<b>v[v
                     </pre>
                     <p>
                         And finally update the
-                        <a target="_blank" href="https://github.com/reactive-tech/kubegres-website/blob/main/includes/news.html">
+                        <a target="_blank" href="https://github.com/reactive-tech/kubegres-website/blob/main/website/includes/news.html">
                         News page</a> by announcing the availability of the release.
                     </p>
                     <p>

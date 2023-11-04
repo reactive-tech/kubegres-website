@@ -118,7 +118,7 @@ metadata:
 spec:
 
    replicas: 3
-   image: postgres:14.1
+   image: postgres:16.0
 
    database:
       size: 200Mi
@@ -223,7 +223,7 @@ persistentvolumeclaim/postgres-db-mypostgres-3-0   200Mi
                 </p>
                 <p>
                     Kubegres created a base ConfigMap named "
-                    <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/controllers/spec/template/yaml/BaseConfigMapTemplate.yaml">
+                    <a target="_blank" href="https://github.com/reactive-tech/kubegres/blob/main/internal/controller/spec/template/yaml/BaseConfigMapTemplate.yaml">
                         base-kubegres-config</a>". It does that in each namespace where Kubegres resources are running.
                     For more details about base ConfigMap, please see the page <a href="/doc/override-default-configs.html">Override the default configurations</a>.
                 </p>
@@ -232,7 +232,7 @@ persistentvolumeclaim/postgres-db-mypostgres-3-0   200Mi
                 </p>
                 <p>
                     Kubegres uses predefined templates to create Kubernetes resources. Those templates are available in
-                    <a target="_blank" href="https://github.com/reactive-tech/kubegres/tree/main/controllers/spec/template/yaml">
+                    <a target="_blank" href="https://github.com/reactive-tech/kubegres/tree/main/internal/controller/spec/template/yaml">
                         GitHub</a>.
                 </p>
                 <p>
