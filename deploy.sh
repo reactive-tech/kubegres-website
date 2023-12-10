@@ -2,13 +2,15 @@
 
 source ~/source/kubernetes-cluster/deployment/app/baseDeploy.sh
 
-BUILD_IMG_DEPLOYMENT_NAME="kubegres-website"
-BUILD_IMG_NAMESPACE="static-websites"
+IMAGE_NAME="kubegres-website"
+IMAGE_PROJECT_NAME="reactivetech"
+KUBERNETES_NAMESPACE="static-websites"
 
 function buildAppAndCopyOutput() {
   gigo gigo.yaml
-  cp docker/Dockerfile $BUILD_TARGET_PATH
+  cp -a target/. $BUILD_TARGET_PATH/image
   cp -rp nginx $BUILD_TARGET_PATH
+  cp docker/Dockerfile $BUILD_TARGET_PATH
 }
 
 deploy
