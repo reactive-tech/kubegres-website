@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ~/source/kubernetes-cluster/deployment/app/baseDeploy.sh
+source ~/source/reactive-tech/cluster/script/app/baseDeploy.sh
 
 IMAGE_NAME="kubegres-website"
 IMAGE_PROJECT_NAME="reactivetech"

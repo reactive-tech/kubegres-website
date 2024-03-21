@@ -98,8 +98,8 @@ spec:
            name: anyMount
 
       volumeClaimTemplates:
-         name: anyMount
-         spec:
+        - name: anyMount
+          spec:
             accessModes: [ "ReadWriteOnce" ]
             storageClassName: standard
             resources:
