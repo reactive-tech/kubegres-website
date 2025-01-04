@@ -13,7 +13,7 @@
 
                     <p>The installation needs to be done once. Run the following command in a Kubernetes cluster:</p>
                     <pre>
-kubectl apply -f https://raw.githubusercontent.com/reactive-tech/kubegres/v1.18/kubegres.yaml
+kubectl apply -f https://raw.githubusercontent.com/reactive-tech/kubegres/v1.19/kubegres.yaml
                     </pre>
 
                     <p>During the installation, "Kubegres" creates the namespace "kubegres-system" where it installs its
@@ -118,7 +118,7 @@ metadata:
 spec:
 
    replicas: 3
-   image: postgres:16.1
+   image: postgres:17.2
 
    database:
       size: 200Mi
@@ -336,7 +336,7 @@ kubectl delete kubegres mypostgres
                 <p>The above command does not delete the Kubegres controller/operator from your cluster.
                     If you would like to delete it, you can run:</p>
                 <pre>
-kubectl delete -f https://raw.githubusercontent.com/reactive-tech/kubegres/v1.18/kubegres.yaml
+kubectl delete -f https://raw.githubusercontent.com/reactive-tech/kubegres/v1.19/kubegres.yaml
                 </pre>
 
                 <h2>Next</h2>
