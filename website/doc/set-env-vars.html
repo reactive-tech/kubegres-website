@@ -5,7 +5,7 @@
             <div class="contentsBoxBody">
                 <article>
                     <p><b>Kubegres</b> allows setting custom environment variables. These variables can be used inside Kubegres resource configuration. And as they are set to the PostgreSql container, they can be accessed from your custom bash scripts running inside the container.</p>
-                    <p>The available properties under "env:" follow Kubernetes' convention as described in the <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#envvar-v1-core">official doc</a>.</p>
+                    <p>The available properties under "env:" follow Kubernetes' convention as described in the <a target="_blank" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.31/#envvar-v1-core">official doc</a>.</p>
                     <p>The mandatory environment variables are:
                     <ul>
                         <li>"env.name: POSTGRES_PASSWORD" : the password of the super user "postgres".  This user is created by the official PostgreSql docker image.</li>
