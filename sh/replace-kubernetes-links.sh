@@ -7,7 +7,7 @@ for link in $(fgrep -r "kubernetes.io" ../website/ | sed -n 's/.*href="\([^"]*\)
 do
 	filename=$(fgrep -rH "$link" ../website/ | cut -d: -f1 | head -n 1)
 	echo "Replacing:$link in file:$filename"
-	if [ -n "$filename"]; thn
+	if [ -n "$filename" ]; then
 		sed -i "s/\/$FIND_VERSION\//\/$REPLACE_VERSION\//g" $filename
 	fi
 done
